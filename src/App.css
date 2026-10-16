@@ -1,184 +1,298 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+/* Monochrome Base Theme */
+:root {
+  /* Monochrome grayscale */
+  --gray-50: #f9f9f9;
+  --gray-100: #f0f0f0;
+  --gray-200: #e0e0e0;
+  --gray-300: #d0d0d0;
+  --gray-400: #b0b0b0;
+  --gray-500: #909090;
+  --gray-600: #707070;
+  --gray-700: #505050;
+  --gray-800: #303030;
+  --gray-900: #202020;
+  --gray-950: #101010;
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+  /* Striking Red for highlights */
+  --red-50: #fff0f0;
+  --red-100: #ffe0e0;
+  --red-200: #ffc0c0;
+  --red-300: #ffa0a0;
+  --red-400: #ff8080;
+  --red-500: #ff6060;
+  --red-600: #ff4040;
+  --red-700: #ff2020;
+  --red-800: #e60000;
+  --red-900: #cc0000;
+
+  /* Semantic colors */
+  --background: var(--gray-950);
+  --foreground: var(--gray-50);
+  --muted: var(--gray-600);
+  --popover: var(--gray-900);
+  --border: var(--gray-700);
+  --input-bg: var(--gray-900);
+  --accent: var(--red-500); /* Primary accent for highlights */
+  --accent-foreground: var(--gray-50);
 }
 
-.hero {
+/* Apply monochrome theme */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Enhanced button styles - Monochrome with Red Highlights */
+button {
+  transition: transform 100ms ease-out, box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(30, 30, 30, 0.8);
+  color: #fff;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(40, 40, 40, 0.9);
+}
+
+button:active {
+  transform: scale(0.97);
+  background: rgba(255, 50, 50, 0.2); /* Red highlight on press */
+  border-color: rgba(255, 100, 100, 0.4);
+}
+
+button:focus-visible {
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(255, 80, 80, 0.5); /* Red focus ring */
+}
+
+/* Special styling for primary action buttons */
+button.primary {
+  background: rgba(255, 30, 30, 0.1);
+  border-color: rgba(255, 60, 60, 0.3);
+}
+
+button.primary:hover {
+  background: rgba(255, 30, 30, 0.15);
+  border-color: rgba(255, 80, 80, 0.4);
+}
+
+button.primary:active {
+  background: rgba(255, 30, 30, 0.25);
+}
+
+/* Monochrome panels with depth */
+.panel {
+  background-color: var(--gray-900);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.panel-header {
+  background-color: var(--gray-800);
+  border-bottom: 1px solid var(--border);
+  color: var(--gray-300);
+  padding: 1rem;
+}
+
+/* Red highlights for interactive/flexing parts */
+.interactive-element {
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-element:hover {
+  background-color: rgba(255, 60, 60, 0.08);
+  border-color: rgba(255, 80, 80, 0.3);
+}
+
+.interactive-element:active {
+  background-color: rgba(255, 60, 60, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Special highlights for parts that "flex the app" */
+.flex-highlight {
   position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
+  overflow: hidden;
 }
 
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
-}
-
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
+.flex-highlight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
   width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 60, 60, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
+.flex-highlight:hover::before,
+.flex-highlight:active::before,
+.flex-highlight:focus::before {
+  left: 100%;
+}
+
+/* Text areas and inputs in monochrome */
+textarea, input {
+  background-color: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+textarea:focus, input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 60, 60, 0.2);
+  outline: none;
+}
+
+textarea:hover, input:hover {
+  border-color: var(--gray-600);
+}
+
+/* Hierarchy through elevation and depth */
+.elevation-1 {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.elevation-2 {
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.15),
+    0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.elevation-3 {
+  box-shadow:
+    0 10px 15px rgba(0, 0, 0, 0.1),
+    0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Red accent for important information */
+.accent-text {
+  color: var(--accent);
+}
+
+.accent-bg {
+  background-color: rgba(255, 60, 60, 0.08);
+}
+
+.border-accent {
+  border-color: var(--accent);
+}
+
+/* Typography Hierarchy */
+.typography-h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.typography-h2 {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.typography-h3 {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+}
+
+.typography-body {
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.typography-label {
+  font-size: clamp(0.75rem, 1vw, 0.875rem);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Spacing System */
+.spacing-px { padding: 1px; }
+.spacing-0 { padding: 0; }
+.spacing-1 { padding: 4px; }
+.spacing-2 { padding: 8px; }
+.spacing-3 { padding: 12px; }
+.spacing-4 { padding: 16px; }
+.spacing-5 { padding: 20px; }
+.spacing-6 { padding: 24px; }
+.spacing-8 { padding: 32px; }
+.spacing-10 { padding: 40px; }
+.spacing-12 { padding: 48px; }
+
+/* Layout containers */
+.layout-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-6);
+}
+
+.layout-section {
+  margin-bottom: var(--spacing-6);
+}
+
+.layout-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Card-based layout for hierarchy */
+.layout-card {
+  background: var(--gray-900);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.layout-card-header {
+  background: var(--gray-800);
+  border-bottom: 1px solid var(--border);
+  padding: var(--spacing-4) var(--spacing-5);
+  font-weight: 600;
+}
+
+.layout-card-content {
+  padding: var(--spacing-5);
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
+  /* Keep essential feedback but make it subtler */
+  button:active {
+    transform: scale(0.99) !important;
+    background: rgba(255, 50, 50, 0.1) !important; /* Subtle red feedback */
   }
 }
