@@ -238,20 +238,20 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-      <header className="flex items-center justify-between px-6 py-3 border-b border-slate-800 bg-slate-950/90 backdrop-blur flex-wrap gap-3">
+    <div className="min-h-screen flex flex-col bg-gray-950 text-gray-50">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-gray-700 bg-gray-950/90 backdrop-blur flex-wrap gap-3 elevation-2">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">
+          <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center font-bold text-white shadow-lg shadow-red-500/30 flex-highlight">
             PV
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-bold text-base tracking-tight text-white">PixelVision</h1>
-              <span className="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+              <h1 className="typography-h1 text-white">PixelVision</h1>
+              <span className="typography-label text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-red-500/15 text-red-300 border border-red-500/30">
                 Gemma 4 Set-of-Mark Workbench
               </span>
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="typography-body text-xs text-gray-400">
               Deterministic DOM Telemetry + Gemma 4 (31B / 26B) Multimodal Spec Verification
             </p>
           </div>
@@ -263,9 +263,9 @@ export function App() {
               key={preset.id}
               type="button"
               onClick={() => handleSelectPreset(preset)}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition cursor-pointer"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-gray-900 hover:bg-gray-800 text-gray-300 border border-gray-700 transition cursor-pointer interactive-element"
             >
-              <Layers className="w-3.5 h-3.5 text-violet-400" />
+              <Layers className="w-3.5 h-3.5 text-red-400" />
               {preset.label}
             </button>
           ))}
@@ -273,16 +273,16 @@ export function App() {
           <button
             type="button"
             onClick={() => setShowRawTelemetry((prev) => !prev)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-900 hover:bg-gray-800 text-gray-300 border border-gray-700 transition cursor-pointer interactive-element"
           >
-            <Terminal className="w-3.5 h-3.5 text-indigo-400" />
+            <Terminal className="w-3.5 h-3.5 text-red-400" />
             {showRawTelemetry ? 'Hide Telemetry' : `Telemetry (${domTelemetry.length})`}
           </button>
 
           <button
             type="button"
             onClick={handleClearCache}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-red-950/50 text-slate-400 hover:text-red-300 border border-slate-800 transition cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-900 hover:bg-red-950/50 text-gray-400 hover:text-red-300 border border-gray-700 transition cursor-pointer interactive-element"
             title="Purge IndexedDB SHA-256 Cache"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -293,8 +293,8 @@ export function App() {
 
       <div className="px-6 py-2.5 bg-slate-900/70 border-b border-slate-800 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2 flex-1 min-w-[280px]">
-          <Globe className="w-4 h-4 text-indigo-400 shrink-0" />
-          <span className="text-xs font-semibold text-slate-300 shrink-0">
+          <Globe className="w-4 h-4 text-red-400 shrink-0" />
+          <span className="text-xs font-semibold text-gray-300 shrink-0">
             Import Live Website URL:
           </span>
           <input
@@ -305,13 +305,13 @@ export function App() {
               if (e.key === 'Enter') handleFetchLiveUrl();
             }}
             placeholder="https://your-deployed-app.vercel.app or any live URL..."
-            className="flex-1 max-w-xl px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-indigo-500"
+            className="flex-1 max-w-xl px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-600 text-xs text-gray-100 font-mono focus:outline-none focus:border-red-500"
           />
           <button
             type="button"
             onClick={() => handleFetchLiveUrl()}
             disabled={isFetchingUrl}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold transition cursor-pointer shadow"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-xs font-semibold transition cursor-pointer shadow"
           >
             <Download className={`w-3.5 h-3.5 ${isFetchingUrl ? 'animate-bounce' : ''}`} />
             {isFetchingUrl ? 'Harvesting DOM & CSS...' : 'Fetch Live URL'}
@@ -319,8 +319,8 @@ export function App() {
         </div>
 
         {importedTitle && activeSourceUrl && (
-          <div className="flex items-center gap-2 text-xs text-emerald-300 bg-emerald-950/40 border border-emerald-800/60 px-3 py-1 rounded-full">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="flex items-center gap-2 text-xs text-red-300 bg-red-950/40 border border-red-800/60 px-3 py-1 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
             Imported: <strong className="font-semibold">{importedTitle}</strong>
           </div>
         )}
@@ -328,59 +328,59 @@ export function App() {
 
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 overflow-hidden">
         <section className="lg:col-span-4 flex flex-col gap-3 overflow-y-auto pr-1">
-          <div className="flex flex-col flex-1 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-3.5 py-2 bg-slate-950/70 border-b border-slate-800 text-xs font-semibold text-slate-300">
+          <div className="flex flex-col flex-1 layout-card elevation-2">
+            <div className="layout-card-header">
               <span className="flex items-center gap-1.5">
-                <Code2 className="w-3.5 h-3.5 text-sky-400" />
+                <Code2 className="w-3.5 h-3.5 text-red-400" />
                 HTML / Extracted DOM Markup
               </span>
-              <span className="text-[11px] font-mono text-slate-500">Editable</span>
+              <span className="typography-label text-[11px] font-mono text-slate-500">Editable</span>
             </div>
             <textarea
               value={htmlCode}
               onChange={(e) => setHtmlCode(e.target.value)}
               spellCheck={false}
-              className="flex-1 min-h-[145px] p-3 bg-slate-900 text-slate-200 font-mono text-xs leading-relaxed focus:outline-none resize-y"
+              className="flex-1 min-h-[145px] p-3 bg-gray-900 text-gray-200 font-mono text-xs leading-relaxed focus:outline-none resize-y"
               placeholder="Paste HTML structure or fetch a live URL above..."
             />
           </div>
 
-          <div className="flex flex-col flex-1 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-3.5 py-2 bg-slate-950/70 border-b border-slate-800 text-xs font-semibold text-slate-300">
+          <div className="flex flex-col flex-1 layout-card elevation-2">
+            <div className="layout-card-header">
               <span className="flex items-center gap-1.5">
-                <Code2 className="w-3.5 h-3.5 text-pink-400" />
+                <Code2 className="w-3.5 h-3.5 text-red-400" />
                 CSS Stylesheet (Inline + Extracted)
               </span>
-              <span className="text-[11px] font-mono text-slate-500">Editable</span>
+              <span className="typography-label text-[11px] font-mono text-slate-500">Editable</span>
             </div>
             <textarea
               value={cssCode}
               onChange={(e) => setCssCode(e.target.value)}
               spellCheck={false}
-              className="flex-1 min-h-[135px] p-3 bg-slate-900 text-slate-200 font-mono text-xs leading-relaxed focus:outline-none resize-y"
+              className="flex-1 min-h-[135px] p-3 bg-gray-900 text-gray-200 font-mono text-xs leading-relaxed focus:outline-none resize-y"
               placeholder="Paste custom CSS rules..."
             />
           </div>
 
-          <div className="flex flex-col flex-1 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between px-3.5 py-2 bg-slate-950/70 border-b border-slate-800 text-xs font-semibold text-slate-300">
+          <div className="flex flex-col flex-1 layout-card elevation-2">
+            <div className="layout-card-header">
               <span className="flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                <FileText className="w-3.5 h-3.5 text-red-400" />
                 Product Spec & Visual Verification Rules
               </span>
-              <span className="text-[11px] font-mono text-slate-500">Ground Truth</span>
+              <span className="typography-label text-[11px] font-mono text-slate-500">Ground Truth</span>
             </div>
             <textarea
               value={specText}
               onChange={(e) => setSpecText(e.target.value)}
-              className="flex-1 min-h-[125px] p-3 bg-slate-900 text-slate-200 text-xs leading-relaxed focus:outline-none resize-y"
+              className="flex-1 min-h-[125px] p-3 bg-gray-900 text-gray-200 text-xs leading-relaxed focus:outline-none resize-y"
               placeholder="Describe visual requirements, spacing rules, and layout hierarchy..."
             />
           </div>
         </section>
 
         <section className="lg:col-span-4 flex flex-col gap-3 h-full">
-          <div className="flex-1 min-h-[520px]">
+          <div className="flex-1 min-h-[520px] layout-card elevation-2">
             <SandboxRenderer
               htmlCode={htmlCode}
               cssCode={cssCode}
@@ -390,8 +390,8 @@ export function App() {
           </div>
 
           {showRawTelemetry && (
-            <div className="max-h-44 bg-slate-900 border border-slate-800 rounded-xl p-3 overflow-auto font-mono text-[11px] text-slate-300">
-              <div className="text-xs font-semibold text-indigo-400 mb-1">
+            <div className="max-h-44 layout-card elevation-1">
+              <div className="text-xs font-semibold text-red-400 mb-1">
                 Live Set-of-Mark DOM Telemetry:
               </div>
               <pre>{JSON.stringify(domTelemetry, null, 2)}</pre>
@@ -402,7 +402,7 @@ export function App() {
             type="button"
             onClick={handleRunAudit}
             disabled={isAuditing || !imageBase64}
-            className="w-full py-3.5 px-5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-lg shadow-indigo-600/25 transition cursor-pointer"
+            className="w-full py-3.5 px-5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-lg shadow-red-600/25 transition cursor-pointer interactive-element"
           >
             <Sparkles className={`w-4 h-4 ${isAuditing ? 'animate-spin' : ''}`} />
             {isAuditing
@@ -411,15 +411,15 @@ export function App() {
           </button>
         </section>
 
-        <section className="lg:col-span-4 flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden h-full">
-          <div className="flex items-center justify-between px-4 py-2.5 bg-slate-950/80 border-b border-slate-800 text-xs font-semibold text-slate-200">
+        <section className="lg:col-span-4 flex flex-col layout-card elevation-2 overflow-hidden h-full">
+          <div className="layout-card-header">
             <span>Gemma 4 Verification Report</span>
             {auditResult?._fromCache !== undefined && (
               <span
                 className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-mono ${
                   auditResult._fromCache
-                    ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
-                    : 'bg-sky-500/15 text-sky-300 border border-sky-500/30'
+                    ? 'bg-red-500/15 text-red-300 border border-red-500/30'
+                    : 'bg-gray-500/15 text-gray-300 border border-gray-500/30'
                 }`}
               >
                 <Database className="w-3 h-3" />
@@ -428,9 +428,9 @@ export function App() {
             )}
           </div>
 
-          <div className="flex-1 p-4 overflow-y-auto space-y-4">
+          <div className="layout-card-content p-4 overflow-y-auto space-y-4">
             {errorMessage && (
-              <div className="p-3.5 rounded-lg bg-red-950/60 border border-red-800 text-red-200 text-xs flex items-start gap-2.5">
+              <div className="p-3.5 rounded-lg border border-red-700 bg-red-950/60 text-red-200 text-xs flex items-start gap-2.5">
                 <XCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
                 <div>
                   <div className="font-semibold mb-0.5">Execution Notice</div>
@@ -441,23 +441,23 @@ export function App() {
 
             {isAuditing && (
               <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
-                <div className="w-10 h-10 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
-                <div className="text-sm font-medium text-slate-200">
+                <div className="w-10 h-10 rounded-full border-2 border-red-600 border-t-transparent animate-spin" />
+                <div className="text-sm font-medium text-gray-200">
                   Cross-referencing Set-of-Mark Badges with DOM Bounding Boxes...
                 </div>
-                <p className="text-xs text-slate-400 max-w-xs">
+                <p className="text-xs text-gray-400 max-w-xs">
                   Gemma 4 (ThinkingLevel.HIGH) is inspecting visual overlaps and validating your product spec.
                 </p>
               </div>
             )}
 
             {!isAuditing && !auditResult && !errorMessage && (
-              <div className="flex flex-col items-center justify-center py-16 text-center text-slate-500 space-y-2">
-                <Sparkles className="w-8 h-8 text-slate-600 stroke-1" />
-                <p className="text-sm font-medium text-slate-400">Ready for Verification</p>
+              <div className="flex flex-col items-center justify-center py-16 text-center text-gray-400 space-y-2">
+                <Sparkles className="w-8 h-8 text-gray-600 stroke-1" />
+                <p className="text-sm font-medium text-gray-400">Ready for Verification</p>
                 <p className="text-xs max-w-xs">
                   Import any live website URL above or pick a preset, then click{' '}
-                  <strong className="text-slate-300">Run Gemma 4 Multimodal Audit</strong>.
+                  <strong className="text-gray-300">Run Gemma 4 Multimodal Audit</strong>.
                 </p>
               </div>
             )}
@@ -467,14 +467,14 @@ export function App() {
                 <div
                   className={`p-3.5 rounded-xl border flex items-start gap-3 ${
                     auditResult.passed
-                      ? 'bg-emerald-950/40 border-emerald-800/80 text-emerald-200'
-                      : 'bg-rose-950/40 border-rose-800/80 text-rose-200'
+                      ? 'bg-red-950/40 border-red-800/80 text-red-200'
+                      : 'bg-gray-950/40 border-gray-800/80 text-gray-200'
                   }`}
                 >
                   {auditResult.passed ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                   ) : (
-                    <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                    <AlertTriangle className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
                   )}
                   <div className="text-xs space-y-1">
                     <div className="font-bold text-sm">
@@ -482,19 +482,19 @@ export function App() {
                         ? 'PASSED: UI Matches Product Spec'
                         : `FAILED: ${auditResult.violations?.length || 0} Visual-Semantic Violations`}
                     </div>
-                    <p className="text-slate-300 leading-relaxed">{auditResult.summary}</p>
+                    <p className="text-gray-300 leading-relaxed">{auditResult.summary}</p>
                   </div>
                 </div>
 
                 {auditResult.violations && auditResult.violations.length > 0 && (
                   <div className="space-y-2.5">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
                       Detected Badge Violations
                     </h3>
                     {auditResult.violations.map((v, idx) => (
                       <div
                         key={idx}
-                        className="p-3 rounded-lg bg-slate-950/90 border border-slate-800 space-y-2"
+                        className="p-3 rounded-lg bg-gray-950/90 border border-gray-700 space-y-2"
                       >
                         <div className="flex items-center justify-between gap-2 flex-wrap">
                           <div className="flex items-center gap-1.5 flex-wrap">
@@ -506,50 +506,50 @@ export function App() {
                                 Badge #{id}
                               </span>
                             ))}
-                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-gray-600 text-gray-300">
                               {v.type}
                             </span>
                           </div>
                           <span
                             className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
                               v.severity === 'CRITICAL'
-                                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                                : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                                : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
                             }`}
                           >
                             {v.severity}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-300 leading-relaxed">{v.description}</p>
+                        <p className="text-xs text-gray-300 leading-relaxed">{v.description}</p>
                       </div>
                     ))}
                   </div>
                 )}
 
                 {auditResult.suggestedPatch && (
-                  <div className="space-y-2.5 pt-2 border-t border-slate-800">
+                  <div className="space-y-2.5 pt-2 border-t border-gray-700">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-400">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-red-400">
                         Suggested Remediation Patch
                       </h3>
                       <button
                         type="button"
                         onClick={handleApplyPatch}
-                        className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition cursor-pointer shadow"
+                        className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-semibold transition cursor-pointer shadow interactive-element"
                       >
                         <Wand2 className="w-3.5 h-3.5" />
                         Apply Patch to Editor
                       </button>
                     </div>
 
-                    <p className="text-xs text-slate-400 leading-relaxed">
+                    <p className="text-xs text-gray-400 leading-relaxed">
                       {auditResult.suggestedPatch.explanation}
                     </p>
 
                     {auditResult.suggestedPatch.css && (
                       <div className="space-y-1">
-                        <div className="text-[11px] font-mono text-pink-400">Patched CSS:</div>
-                        <pre className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] font-mono text-slate-200 overflow-x-auto">
+                        <div className="text-[11px] font-mono text-red-400">Patched CSS:</div>
+                        <pre className="p-2.5 rounded-lg bg-gray-950 border border-gray-700 text-[11px] font-mono text-gray-200 overflow-x-auto">
                           {auditResult.suggestedPatch.css}
                         </pre>
                       </div>
@@ -557,8 +557,8 @@ export function App() {
 
                     {auditResult.suggestedPatch.html && (
                       <div className="space-y-1">
-                        <div className="text-[11px] font-mono text-sky-400">Patched HTML:</div>
-                        <pre className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] font-mono text-slate-200 overflow-x-auto">
+                        <div className="text-[11px] font-mono text-red-400">Patched HTML:</div>
+                        <pre className="p-2.5 rounded-lg bg-gray-950 border border-gray-700 text-[11px] font-mono text-gray-200 overflow-x-auto">
                           {auditResult.suggestedPatch.html}
                         </pre>
                       </div>
