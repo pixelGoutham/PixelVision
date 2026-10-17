@@ -33,86 +33,6 @@ interface DemoPreset {
 
 const DEMO_PRESETS: DemoPreset[] = [
   {
-    id: 'pricing-overlap',
-    label: 'Preset 1: Pricing Card Overlap',
-    html: `<div class="card-container p-5 bg-slate-50 rounded-2xl border border-slate-200 relative max-w-sm mx-auto mt-4">
-  <span class="promo-pill bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-    LIMITED FLASH DEAL
-  </span>
-
-  <h2 class="price-heading text-3xl font-extrabold text-slate-900 mt-1">
-    $49.99 / mo
-  </h2>
-
-  <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-    Unlock full multimodal DOM telemetry, automated visual regression checks, and instant code patches.
-  </p>
-
-  <div class="mt-4 flex items-center justify-between">
-    <button class="cta-btn bg-indigo-600 text-white text-xs px-3 py-1 rounded">
-      Claim Offer Now
-    </button>
-    <a href="#terms" class="terms-link text-xs text-slate-400 underline">
-      Cancel anytime
-    </a>
-  </div>
-</div>`,
-    css: `.promo-pill {
-  position: absolute;
-  top: 22px;
-  left: 24px;
-  z-index: 10;
-}
-
-.price-heading {
-  position: relative;
-  margin-top: 2px;
-}
-
-.cta-btn {
-  height: 26px;
-}
-
-.terms-link {
-  margin-left: -28px;
-}`,
-    spec: `1. No text or badge elements may visually overlap. The "LIMITED FLASH DEAL" promo pill must sit cleanly above the "$49.99 / mo" price heading with at least 8px vertical separation.
-2. The primary "Claim Offer Now" button (.cta-btn) must be full-width (100% width) and have a minimum touch-target height of 44px.
-3. The "Cancel anytime" link must be centered below the primary CTA button, not overlapping or beside it.`,
-  },
-  {
-    id: 'navbar-collision',
-    label: 'Preset 2: Mobile Navbar Collision',
-    html: `<header class="nav-bar bg-slate-900 text-white p-3 rounded-xl flex items-center justify-between relative">
-  <div class="logo font-black text-lg tracking-tight">HackDayBLR</div>
-  <nav class="nav-links flex gap-4 text-xs text-slate-300">
-    <a href="#tracks">Tracks</a>
-    <a href="#prizes">Prizes</a>
-    <a href="#schedule">Schedule</a>
-    <a href="#sponsors">Sponsors</a>
-  </nav>
-  <button class="rsvp-btn bg-emerald-500 text-slate-950 font-bold text-xs px-3 py-1 rounded">
-    RSVP Now
-  </button>
-</header>
-<section class="hero mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-  <h1 class="text-xl font-bold text-slate-900">Hacktoberfest Bengaluru 2026</h1>
-  <p class="text-xs text-slate-600 mt-1">Build with Gemma 4 multimodal intelligence at Startup Park.</p>
-</section>`,
-    css: `.nav-links {
-  position: absolute;
-  left: 95px;
-  white-space: nowrap;
-}
-.rsvp-btn {
-  z-index: 20;
-  height: 24px;
-}`,
-    spec: `1. Navigation links must never collide with or overlap the "RSVP Now" button on mobile viewports.
-2. The "RSVP Now" button must have a minimum touch target height of 40px.
-3. On narrow viewports, the header should stack or wrap cleanly so all links and buttons remain completely legible.`,
-  },
-  {
     id: 'tharunspeaks-pricing',
     label: 'Tharun Speaks - Pricing Cards',
     url: 'https://tharunspeaks.in/',
@@ -223,6 +143,12 @@ nav a:hover { text-decoration: underline; }
 3. The hero heading "iPhone Duo" should have adequate contrast against the background.
 4. The body text "Hello, hello.Hello, Hello. hello." should be readable and not overlap with other elements.
 5. The Apple navigation links should have adequate hit areas and not overlap with each other on mobile viewports.`,
+  },
+  {
+    id: 'pixelblast-demo',
+    label: 'Pixel Blast - Python Course',
+    url: 'https://pixelblast.vercel.app/',
+    // html/css/spec optional - will be fetched live
   },
 ];
 
