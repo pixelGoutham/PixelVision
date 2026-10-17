@@ -287,8 +287,8 @@ export function App() {
     <div className="min-h-screen flex flex-col bg-gray-950 text-gray-50">
       <header className="flex items-center justify-between px-6 py-3 border-b border-gray-700 bg-gray-950/90 backdrop-blur flex-wrap gap-3 elevation-2">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center font-bold text-white shadow-lg shadow-red-500/30 flex-highlight">
-            PV
+          <div className="w-8 h-8 flex items-center justify-center">
+            <img src="/logo_dark.png" alt="PixelVision Logo" className="w-8 h-8" />
           </div>
           <div>
             <div className="flex items-center gap-2">
