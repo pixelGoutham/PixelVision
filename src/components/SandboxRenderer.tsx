@@ -113,7 +113,18 @@ export function SandboxRenderer({
   }, [viewport]);
 
   const buildSrcDoc = useCallback(() => {
-    const baseTag = sourceUrl ? `<base href="${sourceUrl}" />` : '';
+    let baseTag = '';
+    if (sourceUrl && /^https?:\/\//i.test(sourceUrl)) {
+      try {
+        const origin = new URL(sourceUrl).origin + '/';
+        baseTag = `<base href="${origin}" target="_blank" />`;
+      } catch {
+        baseTag = `<base href="${sourceUrl}" target="_blank" />`;
+      }
+    }
+
+    const eagerHtml = preprocessLazyHtml(htmlCode);
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -147,57 +158,177 @@ export function SandboxRenderer({
     [data-aos^="fade"],
     [data-aos^="zoom"],
     [data-aos^="flip"],
-    [data-aos^="slide"] {
+    [data-aos^="slide"],
+    [class*="framer-"],
+    [class*="reveal"] {
       opacity: 1 !important;
       transform: none !important;
       visibility: visible !important;
-      transition: none !important;
     }
   </style>
 </head>
 <body>
   <div id="pixelvision-root">
-    ${htmlCode}
+    ${eagerHtml}
   </div>
 
   <script>
     (function() {
+      // Checks that the element AND all of its ancestor containers are truly visible and uncollapsed
+      function isElementTrulyVisible(el, maxScanHeight) {
+        if (!el || !el.getBoundingClientRect) return false;
+
+        // Skip screen-reader-only or hidden accessibility nodes (e.g., Apple's .visuallyhidden)
+        if (
+          el.classList.contains('visuallyhidden') ||
+          el.classList.contains('sr-only') ||
+          el.getAttribute('aria-hidden') === 'true'
+        ) {
+          return false;
+        }
+
+        const rect = el.getBoundingClientRect();
+        const top = rect.top + window.scrollY;
+        const left = rect.left + window.scrollX;
+
+        if (rect.width < 12 || rect.height < 12) return false;
+        if (rect.bottom <= 0 || rect.right <= 0) return false;
+        if (left >= window.innerWidth || top >= maxScanHeight) return false;
+
+        let curr = el;
+        while (curr && curr !== document.body && curr !== document.documentElement) {
+          if (
+            curr.classList &&
+            (curr.classList.contains('visuallyhidden') || curr.classList.contains('sr-only'))
+          ) {
+            return false;
+          }
+
+          const style = window.getComputedStyle(curr);
+          if (
+            style.display === 'none' ||
+            style.visibility === 'hidden' ||
+            style.visibility === 'collapse' ||
+            parseFloat(style.opacity) < 0.05
+          ) {
+            return false;
+          }
+
+          // Catch collapsed dropdown/flyout menus (like Apple's #globalheader sub-menus)
+          const pRect = curr.getBoundingClientRect();
+          const clipsChildren =
+            style.overflow === 'hidden' ||
+            style.overflowY === 'hidden' ||
+            style.overflowX === 'hidden' ||
+            style.maxHeight === '0px' ||
+            style.clip === 'rect(1px, 1px, 1px, 1px)';
+
+          if (clipsChildren && (pRect.height < 6 || pRect.width < 6)) {
+            return false;
+          }
+
+          curr = curr.parentElement;
+        }
+
+        return true;
+      }
+
+      async function waitForPageStabilization() {
+        // 1. Scroll pass to trigger lazy IntersectionObservers and layout calculations
+        try {
+          window.scrollTo(0, Math.min(document.body.scrollHeight, 1600));
+          await new Promise((r) => setTimeout(r, 180));
+          window.scrollTo(0, 0);
+        } catch (e) {}
+
+        // 2. Promote any remaining lazy images and wait for them to decode (up to 1800ms)
+        const imgs = Array.from(document.querySelectorAll('img'));
+        await Promise.all(
+          imgs.map((img) => {
+            img.loading = 'eager';
+            const dataSrc = img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
+            if (!img.getAttribute('src') && dataSrc) {
+              img.setAttribute('src', dataSrc);
+            }
+            if (img.complete) return Promise.resolve();
+            return new Promise((resolve) => {
+              const timer = setTimeout(resolve, 1800);
+              const done = () => {
+                clearTimeout(timer);
+                resolve();
+              };
+              img.addEventListener('load', done, { once: true });
+              img.addEventListener('error', done, { once: true });
+            });
+          })
+        );
+
+        // 3. Wait for web fonts (e.g. Google Fonts Outfit, Apple SF Pro)
+        if (document.fonts && document.fonts.ready) {
+          await Promise.race([
+            document.fonts.ready,
+            new Promise((r) => setTimeout(r, 1000)),
+          ]);
+        }
+
+        // 4. Extra settle buffer for Tailwind CDN & keyframe animations
+        await new Promise((r) => setTimeout(r, 450));
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      }
+
       function generateSetOfMarks() {
         const existingOverlay = document.getElementById('pv-som-overlay');
         if (existingOverlay) existingOverlay.remove();
 
         const overlay = document.createElement('div');
         overlay.id = 'pv-som-overlay';
-        overlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2147483647;';
+        overlay.style.cssText =
+          'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2147483647;';
         document.body.appendChild(overlay);
 
         const root = document.getElementById('pixelvision-root') || document.body;
-        const candidates = root.querySelectorAll('button, a, input, select, textarea, img, h1, h2, h3, h4, p, span');
-        
-        const seenElements = new Set();
+        // Prioritize interactive controls and semantic headings/media before generic paragraphs/spans
+        const candidates = root.querySelectorAll(
+          'button, a, input, select, textarea, [role="button"], h1, h2, h3, h4, img, p, span'
+        );
+
+        const badgedElements = [];
         const telemetry = [];
         let badgeCounter = 1;
+        const maxScanHeight = Math.max(window.innerHeight * 1.35, 1100);
 
         candidates.forEach((el) => {
           if (badgeCounter > 40) return;
-          if (seenElements.has(el)) return;
           if (el.id === 'pv-som-overlay' || el.closest('#pv-som-overlay')) return;
 
+          // Prevent duplicate nested badges (e.g., a <span> or <p> inside an already-badged <a> or <button>)
+          const hasBadgedAncestorOrChild = badgedElements.some(
+            (existing) => existing.contains(el) || el.contains(existing)
+          );
+          if (hasBadgedAncestorOrChild) return;
+
+          if (!isElementTrulyVisible(el, maxScanHeight)) return;
+
           const rect = el.getBoundingClientRect();
-          if (rect.width < 10 || rect.height < 10) return;
-
-          const style = window.getComputedStyle(el);
-          if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) {
-            return;
-          }
-
-          seenElements.add(el);
-          const badgeId = badgeCounter++;
-
           const top = Math.round(rect.top + window.scrollY);
           const left = Math.round(rect.left + window.scrollX);
           const width = Math.round(rect.width);
           const height = Math.round(rect.height);
+
+          // Skip oversized full-page wrapper containers
+          if (width > window.innerWidth * 0.96 && height > window.innerHeight * 0.85) {
+            return;
+          }
+
+          // Skip empty generic spans/paragraphs with no text
+          const rawText = (el.innerText || el.textContent || '').trim().replace(/\\s+/g, ' ');
+          const tag = el.tagName.toLowerCase();
+          if ((tag === 'span' || tag === 'p') && rawText.length < 2) {
+            return;
+          }
+
+          badgedElements.push(el);
+          const badgeId = badgeCounter++;
 
           const box = document.createElement('div');
           box.style.cssText = [
@@ -209,7 +340,7 @@ export function SandboxRenderer({
             'border:1.5px dashed rgba(239, 68, 68, 0.85)',
             'background:rgba(239, 68, 68, 0.04)',
             'border-radius:3px',
-            'pointer-events:none'
+            'pointer-events:none',
           ].join(';');
           overlay.appendChild(box);
 
@@ -237,11 +368,9 @@ export function SandboxRenderer({
           ].join(';');
           overlay.appendChild(badge);
 
-          const rawText = (el.innerText || el.textContent || '').trim().replace(/\\s+/g, ' ');
-
           telemetry.push({
             badgeId: badgeId,
-            tagName: el.tagName.toLowerCase(),
+            tagName: tag,
             className: typeof el.className === 'string' ? el.className.slice(0, 80) : '',
             id: el.id || '',
             textSnippet: rawText.slice(0, 80),
@@ -253,15 +382,26 @@ export function SandboxRenderer({
               top: top,
               right: left + width,
               bottom: top + height,
-              left: left
-            }
+              left: left,
+            },
           });
         });
 
-        window.parent.postMessage({
-          type: 'PIXELVISION_TELEMETRY_READY',
-          telemetry: telemetry
-        }, '*');
+        window.parent.postMessage(
+          {
+            type: 'PIXELVISION_TELEMETRY_READY',
+            telemetry: telemetry,
+          },
+          '*'
+        );
+      }
+
+      let hasRun = false;
+      async function runPipeline() {
+        if (hasRun) return;
+        hasRun = true;
+        await waitForPageStabilization();
+        generateSetOfMarks();
       }
 
       window.addEventListener('load', () => {
