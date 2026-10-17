@@ -33,75 +33,6 @@ interface DemoPreset {
 
 const DEMO_PRESETS: DemoPreset[] = [
   {
-    id: 'tharunspeaks-pricing',
-    label: 'Tharun Speaks - Pricing Cards',
-    url: 'https://tharunspeaks.in/',
-    html: `<!-- Extracted from https://tharunspeaks.in/ pricing section -->
-<section class="section" id="pricing">
-  <h2>The Best Prices Ever</h2>
-  <p>Pick your plan and start EDITING today. One flat fee.</p>
-  <div class="grid pricing-grid">
-    <div class="card">
-      <h3>ESSENTIAL</h3>
-      <div class="price">₹4,999</div>
-      <p>+GST</p>
-      <p>For students passionate about video editing</p>
-      <ul>
-        <li>Studio Quality Lectures</li>
-        <li>Weekly 2 live classes</li>
-        <li>Access to the community</li>
-      </ul>
-      <a href="#" class="cta">Join Now</a>
-    </div>
-    <div class="card">
-      <h3>ELITE</h3>
-      <div class="price">₹6,999</div>
-      <p>+GST</p>
-      <p>Most popular</p>
-      <p>For creative minds eager to excel in Video Editing, Design & Content Creation</p>
-      <ul>
-        <li>Everything In Essential</li>
-        <li>Dedicated Mentors</li>
-        <li>Weekly Social Media Masterclasses</li>
-        <li>Edit Battles, Community Games & Challenges</li>
-        <li>Video Editing Assets worth ₹5,000</li>
-      </ul>
-      <a href="#" class="cta">Join Now</a>
-    </div>
-    <div class="card">
-      <h3>ULTIMATE</h3>
-      <div class="price">₹14,999</div>
-      <p>+GST</p>
-      <p>For students serious about building a career in Creative Industry</p>
-      <ul>
-        <li>Everything in Elite</li>
-        <li>Personal Learning Manager</li>
-        <li>Access to placement worth ₹30k/Month</li>
-        <li>Special Group with Tharun</li>
-        <li>Video Editing Assets worth ₹10,000</li>
-      </ul>
-      <a href="#" class="cta">Join Now</a>
-    </div>
-  </div>
-</section>`,
-    css: `:root { --primary:#ff6b6b; --bg:#fff; --muted:#555; }
-body{margin:0;font-family:Arial,sans-serif;background:#f9f9f9;color:#222}
-.section{padding:2rem;max-width:1100px;margin:auto}
-.grid{display:grid;gap:1.5rem}
-.pricing-grid{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-.card{background:#fff;border-radius:8px;padding:1.5rem;box-shadow:0 2px 6px rgba(0,0,0,.1);}
-.card h3{margin-top:0;color:var(--primary)}
-.price{font-size:1.8rem;margin:.5rem 0;color:#222}
-.cta{display:inline-block;padding:.8rem 1.5rem;background:#fff;color:var(--primary);
-      border-radius:4px;text-decoration:none;font-weight:bold}
-.cta:hover{opacity:0.9}`,
-    spec: `1. The pricing cards should be evenly spaced with adequate gaps between them (minimum 24px).
-2. Each "Join Now" button must have a minimum touch-target height of 44px and adequate contrast.
-3. The price text (₹4,999, ₹6,999, ₹14,999) should be clearly readable and not overlap with other elements.
-4. The "+GST" text should be positioned clearly below the price without overlapping.
-5. On mobile viewports, the cards should stack vertically with proper spacing.`,
-  },
-  {
     id: 'apple-hero',
     label: 'Apple.com - iPhone Hero Section',
     url: 'https://www.apple.com/',
@@ -299,7 +230,7 @@ export function App() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="typography-h1 text-white">PixelVision</h1>
-              <span className="typography-label text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-red-500/15 text-red-300 border border-red-500/30">
+              <span className="typography-label text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
                 Gemma 4 Set-of-Mark Workbench
               </span>
             </div>
@@ -317,7 +248,7 @@ export function App() {
               onClick={() => handleSelectPreset(preset)}
               className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-gray-900 hover:bg-gray-800 text-gray-300 border border-gray-700 transition cursor-pointer interactive-element"
             >
-              <Layers className="w-3.5 h-3.5 text-red-400" />
+              <Layers className="w-3.5 h-3.5 text-indigo-400" />
               {preset.label}
             </button>
           ))}
@@ -327,14 +258,14 @@ export function App() {
             onClick={() => setShowRawTelemetry((prev) => !prev)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-900 hover:bg-gray-800 text-gray-300 border border-gray-700 transition cursor-pointer interactive-element"
           >
-            <Terminal className="w-3.5 h-3.5 text-red-400" />
+            <Terminal className="w-3.5 h-3.5 text-indigo-400" />
             {showRawTelemetry ? 'Hide Telemetry' : `Telemetry (${domTelemetry.length})`}
           </button>
 
           <button
             type="button"
             onClick={handleClearCache}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-900 hover:bg-red-950/50 text-gray-400 hover:text-red-300 border border-gray-700 transition cursor-pointer interactive-element"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-900 hover:bg-indigo-950/50 text-gray-400 hover:text-indigo-300 border border-gray-700 transition cursor-pointer interactive-element"
             title="Purge IndexedDB SHA-256 Cache"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -345,7 +276,7 @@ export function App() {
 
       <div className="px-6 py-2.5 bg-slate-900/70 border-b border-slate-800 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2 flex-1 min-w-[280px]">
-          <Globe className="w-4 h-4 text-red-400 shrink-0" />
+          <Globe className="w-4 h-4 text-indigo-400 shrink-0" />
           <span className="text-xs font-semibold text-gray-300 shrink-0">
             Import Live Website URL:
           </span>
@@ -357,13 +288,13 @@ export function App() {
               if (e.key === 'Enter') void handleFetchLiveUrl();
             }}
             placeholder="https://your-deployed-app.vercel.app or any live URL..."
-            className="flex-1 max-w-xl px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-600 text-xs text-gray-100 font-mono focus:outline-none focus:border-red-500"
+            className="flex-1 max-w-xl px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-600 text-xs text-gray-100 font-mono focus:outline-none focus:border-indigo-500"
           />
           <button
             type="button"
             onClick={() => void handleFetchLiveUrl()}
             disabled={isFetchingUrl}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-xs font-semibold transition cursor-pointer shadow"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold transition cursor-pointer shadow"
           >
             <Download className={`w-3.5 h-3.5 ${isFetchingUrl ? 'animate-bounce' : ''}`} />
             {isFetchingUrl ? 'Harvesting DOM & CSS...' : 'Fetch Live URL'}
@@ -371,8 +302,8 @@ export function App() {
         </div>
 
         {importedTitle && activeSourceUrl && (
-          <div className="flex items-center gap-2 text-xs text-red-300 bg-red-950/40 border border-red-800/60 px-3 py-1 rounded-full">
-            <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+          <div className="flex items-center gap-2 text-xs text-indigo-300 bg-indigo-950/40 border border-indigo-800/60 px-3 py-1 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
             Imported: <strong className="font-semibold">{importedTitle}</strong>
           </div>
         )}
@@ -383,7 +314,7 @@ export function App() {
           <div className="flex flex-col flex-1 layout-card elevation-2">
             <div className="layout-card-header">
               <span className="flex items-center gap-1.5">
-                <Code2 className="w-3.5 h-3.5 text-red-400" />
+                <Code2 className="w-3.5 h-3.5 text-indigo-400" />
                 HTML / Extracted DOM Markup
               </span>
               <span className="typography-label text-[11px] font-mono text-slate-500">Editable</span>
@@ -400,7 +331,7 @@ export function App() {
           <div className="flex flex-col flex-1 layout-card elevation-2">
             <div className="layout-card-header">
               <span className="flex items-center gap-1.5">
-                <Code2 className="w-3.5 h-3.5 text-red-400" />
+                <Code2 className="w-3.5 h-3.5 text-indigo-400" />
                 CSS Stylesheet (Inline + Extracted)
               </span>
               <span className="typography-label text-[11px] font-mono text-slate-500">Editable</span>
@@ -417,7 +348,7 @@ export function App() {
           <div className="flex flex-col flex-1 layout-card elevation-2">
             <div className="layout-card-header">
               <span className="flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-red-400" />
+                <FileText className="w-3.5 h-3.5 text-indigo-400" />
                 Product Spec & Visual Verification Rules
               </span>
               <span className="typography-label text-[11px] font-mono text-slate-500">Ground Truth</span>
@@ -456,7 +387,7 @@ export function App() {
             type="button"
             onClick={() => void handleRunAudit()}
             disabled={isAuditing || !imageBase64}
-            className="w-full py-3.5 px-5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-lg shadow-red-600/25 transition cursor-pointer interactive-element"
+            className="w-full py-3.5 px-5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-lg shadow-indigo-600/25 transition cursor-pointer interactive-element"
           >
             <Sparkles className={`w-4 h-4 ${isAuditing ? 'animate-spin' : ''}`} />
             {isAuditing
@@ -472,7 +403,7 @@ export function App() {
               <span
                 className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-mono ${
                   auditResult._fromCache
-                    ? 'bg-red-500/15 text-red-300 border border-red-500/30'
+                    ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'
                     : 'bg-gray-500/15 text-gray-300 border border-gray-500/30'
                 }`}
               >
@@ -484,8 +415,8 @@ export function App() {
 
           <div className="layout-card-content p-4 overflow-y-auto space-y-4">
             {errorMessage && (
-              <div className="p-3.5 rounded-lg border border-red-700 bg-red-950/60 text-red-200 text-xs flex items-start gap-2.5">
-                <XCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-lg border border-indigo-700 bg-indigo-950/60 text-indigo-200 text-xs flex items-start gap-2.5">
+                <XCircle className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
                 <div>
                   <div className="font-semibold mb-0.5">Execution Notice</div>
                   <div>{errorMessage}</div>
@@ -495,7 +426,7 @@ export function App() {
 
             {isAuditing && (
               <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
-                <div className="w-10 h-10 rounded-full border-2 border-red-600 border-t-transparent animate-spin" />
+                <div className="w-10 h-10 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin" />
                 <div className="text-sm font-medium text-gray-200">
                   Cross-referencing Set-of-Mark Badges with DOM Bounding Boxes...
                 </div>
@@ -555,7 +486,7 @@ export function App() {
                             {v.badgeIds?.map((id) => (
                               <span
                                 key={id}
-                                className="px-2 py-0.5 rounded bg-red-500 text-white font-mono text-[11px] font-bold shadow"
+                                className="px-2 py-0.5 rounded bg-indigo-500 text-white font-mono text-[11px] font-bold shadow"
                               >
                                 Badge #{id}
                               </span>
@@ -567,7 +498,7 @@ export function App() {
                           <span
                             className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
                               v.severity === 'CRITICAL'
-                                ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
                                 : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
                             }`}
                           >
@@ -583,13 +514,13 @@ export function App() {
                 {auditResult.suggestedPatch && (
                   <div className="space-y-2.5 pt-2 border-t border-gray-700">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-red-400">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-400">
                         Suggested Remediation Patch
                       </h3>
                       <button
                         type="button"
                         onClick={handleApplyPatch}
-                        className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-semibold transition cursor-pointer shadow interactive-element"
+                        className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition cursor-pointer shadow interactive-element"
                       >
                         <Wand2 className="w-3.5 h-3.5" />
                         Apply Patch to Editor
@@ -602,7 +533,7 @@ export function App() {
 
                     {auditResult.suggestedPatch.css && (
                       <div className="space-y-1">
-                        <div className="text-[11px] font-mono text-red-400">Patched CSS:</div>
+                        <div className="text-[11px] font-mono text-indigo-400">Patched CSS:</div>
                         <pre className="p-2.5 rounded-lg bg-gray-950 border border-gray-700 text-[11px] font-mono text-gray-200 overflow-x-auto">
                           {auditResult.suggestedPatch.css}
                         </pre>
@@ -611,7 +542,7 @@ export function App() {
 
                     {auditResult.suggestedPatch.html && (
                       <div className="space-y-1">
-                        <div className="text-[11px] font-mono text-red-400">Patched HTML:</div>
+                        <div className="text-[11px] font-mono text-indigo-400">Patched HTML:</div>
                         <pre className="p-2.5 rounded-lg bg-gray-950 border border-gray-700 text-[11px] font-mono text-gray-200 overflow-x-auto">
                           {auditResult.suggestedPatch.html}
                         </pre>
