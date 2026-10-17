@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { toPng } from 'html-to-image';
-import { RefreshCw, Camera, Eye, Layers, Smartphone, Tablet, Monitor } from 'lucide-react';
+import { RefreshCw, Camera, Eye, Smartphone, Tablet, Monitor } from 'lucide-react';
 import type { DomTelemetryItem } from '../lib/gemmaClient';
 
 interface SandboxRendererProps {
@@ -18,19 +18,14 @@ interface SandboxMessagePayload {
 type ViewportMode = 'mobile' | 'tablet' | 'desktop';
 
 const VIEWPORT_CONFIG: Record<ViewportMode, { width: number; height: number; label: string }> = {
-  mobile: { width: 375, height: 640, label: '375px Mobile' },
-  tablet: { width: 768, height: 900, label: '768px Tablet' },
-  desktop: { width: 1280, height: 960, label: '1280px Desktop' },
+  mobile: { width: 375, height: 640, label: '375px' },
+  tablet: { width: 768, height: 880, label: '768px' },
+  desktop: { width: 1280, height: 920, label: '1280px' },
 };
 
-// 1x1 transparent PNG prevents html-to-image from throwing Event { type: "error", target: img } on CORS images
 const TRANSPARENT_PIXEL =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
-/**
- * Tier 3 Fallback: Synthesizes a high-contrast Set-of-Mark visual frame using native HTML5 Canvas
- * if a strict enterprise site (like apple.com) blocks SVG foreignObject serialization.
- */
 function renderSyntheticSomCanvas(
   telemetry: DomTelemetryItem[],
   width: number,
@@ -42,7 +37,6 @@ function renderSyntheticSomCanvas(
   const ctx = canvas.getContext('2d');
   if (!ctx) return TRANSPARENT_PIXEL;
 
-  // Background
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, width, height);
 
@@ -50,8 +44,7 @@ function renderSyntheticSomCanvas(
     const { x, y, width: w, height: h } = item.rect;
     if (y > height || x > width) return;
 
-    // Element surface fill & dashed red bounding box
-    ctx.fillStyle = 'rgba(241, 245, 249, 0.85)';
+    ctx.fillStyle = 'rgba(244, 244, 245, 0.9)';
     ctx.fillRect(x, y, w, h);
 
     ctx.save();
@@ -61,14 +54,17 @@ function renderSyntheticSomCanvas(
     ctx.strokeRect(x, y, w, h);
     ctx.restore();
 
-    // Element text snippet
     if (item.textSnippet) {
-      ctx.fillStyle = '#0f172a';
-      ctx.font = '12px ui-sans-serif, system-ui, sans-serif';
-      ctx.fillText(item.textSnippet.slice(0, 38), x + 6, Math.min(y + 18, y + h - 4), Math.max(20, w - 12));
+      ctx.fillStyle = '#09090b';
+      ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText(
+        item.textSnippet.slice(0, 38),
+        x + 6,
+        Math.min(y + 18, y + h - 4),
+        Math.max(20, w - 12)
+      );
     }
 
-    // Red Set-of-Mark badge
     const badgeX = Math.max(0, x - 8);
     const badgeY = Math.max(0, y - 8);
     ctx.fillStyle = '#ef4444';
@@ -105,7 +101,7 @@ export function SandboxRenderer({
   useEffect(() => {
     const updateScale = () => {
       if (!stageContainerRef.current) return;
-      const availableWidth = stageContainerRef.current.clientWidth - 24;
+      const availableWidth = stageContainerRef.current.clientWidth - 32;
       const targetWidth = VIEWPORT_CONFIG[viewport].width;
       const nextScale = Math.min(1, availableWidth / targetWidth);
       setScaleFactor(Number(nextScale.toFixed(3)));
@@ -125,7 +121,6 @@ export function SandboxRenderer({
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   ${baseTag}
   <script>
-    // Silence Tailwind Play CDN dev warning in console
     const origWarn = console.warn;
     console.warn = function(...args) {
       if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
@@ -139,8 +134,8 @@ export function SandboxRenderer({
       margin: 0;
       padding: 0;
       background-color: #ffffff;
-      color: #0f172a;
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #09090b;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
       position: relative;
       min-height: 100vh;
       overflow-x: hidden;
@@ -148,7 +143,6 @@ export function SandboxRenderer({
 
     ${cssCode}
 
-    /* Ensure scroll-triggered animation elements (AOS, GSAP) are visible without JS */
     [data-aos],
     [data-aos^="fade"],
     [data-aos^="zoom"],
@@ -212,7 +206,7 @@ export function SandboxRenderer({
             'left:' + left + 'px',
             'width:' + width + 'px',
             'height:' + height + 'px',
-            'border:1.5px dashed rgba(239, 68, 68, 0.8)',
+            'border:1.5px dashed rgba(239, 68, 68, 0.85)',
             'background:rgba(239, 68, 68, 0.04)',
             'border-radius:3px',
             'pointer-events:none'
@@ -236,9 +230,9 @@ export function SandboxRenderer({
             'display:flex',
             'align-items:center',
             'justify-content:center',
-            'border-radius:4px',
+            'border-radius:5px',
             'border:1.5px solid #ffffff',
-            'box-shadow:0 2px 4px rgba(0,0,0,0.4)',
+            'box-shadow:0 2px 6px rgba(0,0,0,0.45)',
             'z-index:2147483647'
           ].join(';');
           overlay.appendChild(badge);
@@ -273,7 +267,7 @@ export function SandboxRenderer({
       window.addEventListener('load', () => {
         setTimeout(() => {
           requestAnimationFrame(generateSetOfMarks);
-        }, 350);
+        }, 300);
       });
     })();
   </script>
@@ -308,7 +302,6 @@ export function SandboxRenderer({
       let base64Png = '';
 
       try {
-        // Tier 1: Capture with skipFonts + imagePlaceholder to bypass font/img CORS errors
         base64Png = await toPng(bodyEl, {
           width: captureWidth,
           height: captureHeight,
@@ -319,7 +312,6 @@ export function SandboxRenderer({
         });
       } catch {
         try {
-          // Tier 2: Strip cross-origin <picture>, <source>, <img>, <video>, and <svg> tags
           base64Png = await toPng(bodyEl, {
             width: captureWidth,
             height: captureHeight,
@@ -342,8 +334,6 @@ export function SandboxRenderer({
             },
           });
         } catch {
-          // Tier 3: Guaranteed Native Canvas Set-of-Mark Wireframe
-          console.info('PixelVision: Using native Canvas Set-of-Mark renderer for strict CORS page.');
           base64Png = renderSyntheticSomCanvas(telemetry, captureWidth, captureHeight);
         }
       } finally {
@@ -362,67 +352,53 @@ export function SandboxRenderer({
   const scaledWrapperHeight = Math.round(currentDim.height * scaleFactor);
 
   return (
-    <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
-      <div className="flex items-center justify-between px-3 py-2 bg-slate-950/80 border-b border-slate-800 text-xs flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 font-semibold text-slate-200">
-            <Layers className="w-3.5 h-3.5 text-indigo-400" />
-            SoM Sandbox
+    <div className="flex flex-col h-full bg-[#121214] overflow-hidden">
+      {/* Minimalist PixelFocus Stage Bar */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.06] text-xs flex-wrap gap-2">
+        <div className="flex items-center gap-2.5">
+          <span className="px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-400 border border-rose-500/25 font-mono text-[11px] font-semibold">
+            {badgeCount} Marks
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/30 font-mono text-[11px]">
-            {badgeCount} Badges
-          </span>
-          <span className="text-[11px] font-mono text-slate-400">
-            ({currentDim.label})
+          <span className="text-[11px] font-mono text-zinc-500">
+            {currentDim.width} × {currentDim.height}
           </span>
           {isCapturing && (
-            <span className="flex items-center gap-1 text-amber-400 animate-pulse text-[11px]">
+            <span className="flex items-center gap-1 text-zinc-400 animate-pulse text-[11px]">
               <Camera className="w-3 h-3" />
-              Capturing...
+              Sampling...
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800">
-          <button
-            type="button"
-            onClick={() => {
-              setViewport('mobile');
-              setRenderKey((k) => k + 1);
-            }}
-            className={`p-1 rounded transition cursor-pointer ${
-              viewport === 'mobile' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="Mobile Viewport (375px)"
-          >
-            <Smartphone className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setViewport('tablet');
-              setRenderKey((k) => k + 1);
-            }}
-            className={`p-1 rounded transition cursor-pointer ${
-              viewport === 'tablet' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="Tablet Viewport (768px)"
-          >
-            <Tablet className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setViewport('desktop');
-              setRenderKey((k) => k + 1);
-            }}
-            className={`p-1 rounded transition cursor-pointer ${
-              viewport === 'desktop' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="Desktop Viewport (1280px scaled)"
-          >
-            <Monitor className="w-3.5 h-3.5" />
-          </button>
+        {/* Apple-style Segmented Viewport Pill */}
+        <div className="flex items-center gap-0.5 bg-[#09090b] p-1 rounded-lg border border-white/[0.07]">
+          {(
+            [
+              { id: 'mobile', icon: Smartphone, label: 'Mobile' },
+              { id: 'tablet', icon: Tablet, label: 'Tablet' },
+              { id: 'desktop', icon: Monitor, label: 'Desktop' },
+            ] as const
+          ).map(({ id, icon: Icon, label }) => {
+            const active = viewport === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => {
+                  setViewport(id);
+                  setRenderKey((k) => k + 1);
+                }}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium cursor-pointer apple-press ${
+                  active
+                    ? 'bg-white text-zinc-950 font-semibold shadow-sm'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <Icon className="w-3 h-3" />
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         <div className="flex items-center gap-1.5">
@@ -430,35 +406,37 @@ export function SandboxRenderer({
             <button
               type="button"
               onClick={() => setShowSnapshotPreview((prev) => !prev)}
-              className={`flex items-center gap-1 px-2 py-1 rounded-md border transition text-[11px] cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-medium cursor-pointer apple-press ${
                 showSnapshotPreview
-                  ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300'
-                  : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-slate-200'
+                  ? 'bg-white text-zinc-950 border-white'
+                  : 'bg-[#09090b] border-white/[0.08] text-zinc-400 hover:text-zinc-200'
               }`}
             >
               <Eye className="w-3 h-3" />
-              {showSnapshotPreview ? 'Live DOM' : 'AI PNG'}
+              {showSnapshotPreview ? 'Live DOM' : 'AI Frame'}
             </button>
           )}
           <button
             type="button"
             onClick={() => setRenderKey((prev) => prev + 1)}
-            className="flex items-center gap-1 px-2 py-1 rounded-md bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition text-[11px] cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#09090b] hover:bg-zinc-800 text-zinc-300 border border-white/[0.08] text-[11px] font-medium cursor-pointer apple-press"
           >
             <RefreshCw className="w-3 h-3" />
-            Re-Badge
+            Re-Index
           </button>
         </div>
       </div>
 
+      {/* Viewport Canvas */}
       <div
         ref={stageContainerRef}
-        className="relative flex-1 bg-slate-950 p-3 flex items-start justify-center overflow-auto"
+        className="relative flex-1 bg-[#09090b] p-4 flex items-start justify-center overflow-auto"
       >
         {showSnapshotPreview && lastSnapshot ? (
-          <div className="w-full bg-white rounded-lg shadow-2xl overflow-hidden border-2 border-slate-700">
-            <div className="bg-indigo-950 text-indigo-200 text-[11px] px-3 py-1 font-mono border-b border-indigo-800">
-              Exact Base64 Set-of-Mark PNG Sent to Gemma 4 ({currentDim.label})
+          <div className="w-full bg-white rounded-xl shadow-2xl overflow-hidden border border-white/10">
+            <div className="bg-[#121214] text-zinc-300 text-[11px] px-3.5 py-1.5 font-mono border-b border-white/10 flex items-center justify-between">
+              <span>Multimodal Tensor Frame ({currentDim.label})</span>
+              <span className="text-emerald-400">SHA-256 Indexed</span>
             </div>
             <img
               src={lastSnapshot}
@@ -472,7 +450,7 @@ export function SandboxRenderer({
               width: `${Math.round(currentDim.width * scaleFactor)}px`,
               height: `${scaledWrapperHeight}px`,
             }}
-            className="relative overflow-hidden rounded-lg shadow-2xl border-2 border-slate-700 bg-white shrink-0"
+            className="relative overflow-hidden rounded-xl shadow-2xl border border-white/15 bg-white shrink-0"
           >
             <iframe
               key={`${renderKey}-${viewport}-${htmlCode.length}-${cssCode.length}`}

@@ -1,0 +1,537 @@
+# PixelVision: Gemma 4 Set-of-Mark Workbench - SUPER CONTEXT FILE
+
+## TABLE OF CONTENTS
+1. [Executive Summary](#executive-summary)
+2. [What It Does](#what-it-does)
+3. [The Arc (Purpose & Vision)](#the-arc-purpose--vision)
+4. [The Why (Motivation & Problem Space)](#the-why-motivation--problem-space)
+5. [Technical Implementation](#technical-implementation)
+6. [Tech Stack](#tech-stack)
+7. [Architecture Overview](#architecture-overview)
+8. [Core Components](#core-components)
+9. [Key Features](#key-features)
+10. [Current State & Opportunities](#current-state--opportunities)
+11. [Apple Design Improvement Plan](#apple-design-improvement-plan)
+12. [Development Setup](#development-setup)
+13. [API Endpoints](#api-endpoints)
+14. [File Structure](#file-structure)
+15. [Conclusion](#conclusion)
+
+---
+
+## EXECUTIVE SUMMARY
+
+PixelVision is an innovative AI-powered UI/UX auditing and verification workbench that combines Google's Set-of-Mark (SoM) visual prompting technique with Gemma 4 (31B/26B) multimodal reasoning to audit live webpages against explicit product specifications, detect visual/layout issues, and apply AI-suggested fixes in one click.
+
+Built as a React 18 + TypeScript + Vite application, PixelVision serves as a Hacktoberfest Hack Day Bengaluru 2026 submission for:
+- **Primary Track:** Best Use of Gemma 4 (Multimodal AI Intelligence)
+- **Open-Source Alignment:** Best Open-Source AI Project (Trustworthy and Verifiable AI)
+
+---
+
+## WHAT IT DOES
+
+PixelVision enables users to:
+- Import live website URLs or use preset demo cases
+- Visualize DOM elements with Set-of-Mark badges
+- Run multimodal audits against product specifications
+- Receive AI-generated violation reports and suggested remediation patches
+- Apply AI-suggested fixes directly to code editors
+- Test responsive designs across mobile/tablet/desktop viewports
+- Cache audit results for instant feedback
+- Simulate bugs to test self-healing capabilities
+
+## THE ARC (PURPOSE & VISION)
+
+PixelVision was created to bridge the gap between advanced AI capabilities and practical UI/UX development workflows. The core vision is to:
+
+1. Make cutting-edge multimodal AI (Gemma 4) accessible to frontend developers and designers
+2. Provide objective, AI-driven feedback on visual design quality
+3. Automate detection of common UI issues like overlapping elements, inadequate touch targets, and layout breaks
+4. Close the loop between AI analysis and implementation by providing actionable, editable patches
+5. Serve as a verification engine that ensures UIs meet specified product requirements before shipping
+6. Explore how specialized AI models can be integrated into creative workflows to augment human judgment rather than replace it
+
+## THE WHY (MOTIVATION & PROBLEM SPACE)
+
+Modern web development faces several challenges that PixelVision addresses:
+
+- **Subjective UI Reviews**: Design critiques often rely on personal preference rather than objective criteria
+- **Missed Visual Issues**: Overlapping elements, insufficient touch targets, and layout breaks slip through manual QA
+- **Inconsistent Implementation**: Design specs aren't always faithfully translated to code
+- **Accessibility Oversights**: Touch target sizing and visual hierarchy issues affect usability
+- **Slow Feedback Cycles**: Manual review processes delay issue detection and resolution
+
+PixelVision solves these by:
+- Using Gemma 4's multimodal reasoning to evaluate UIs against explicit product specifications
+- Applying the Set-of-Mark technique to provide spatial context to the AI model
+- Generating specific, actionable feedback with visual explanations
+- Offering one-click application of AI-suggested fixes
+- Enabling rapid iteration between design, implementation, and verification
+
+## TECHNICAL IMPLEMENTATION
+
+### Architecture Overview
+PixelVision follows a client-side only architecture with simulated backend APIs:
+- **Frontend**: React 18 + TypeScript + Vite
+- **State Management**: React hooks (useState, useCallback, useEffect)
+- **UI Components**: Custom components with Lucide React icons
+- **Styling**: Tailwind CSS with customizations
+- **AI Integration**: Simulated API endpoints (`/api/fetch-url`, `/api/audit`) that would connect to Gemma 4 in production
+
+### Core Technologies & Techniques
+
+#### 1. Set-of-Mark Visualization
+The application implements Google's Set-of-Mark technique:
+- DOM elements are scanned for interactive and visual candidates (buttons, links, headers, etc.)
+- Each element receives a unique badge ID and visual bounding box
+- Badges are rendered as red circles with white numbers in an overlay
+- The marked visualization is captured as an image and sent to Gemma 4 alongside DOM telemetry
+
+#### 2. Multimodal AI Pipeline
+The auditing process follows this flow:
+1. User provides HTML/CSS (via URL import, preset selection, or manual entry)
+2. SandboxRenderer creates an iframe with the provided code
+3. Set-of-Mark script runs in the iframe, generating:
+   - Base64 PNG image of the marked visualization
+   - DOM telemetry array (element properties, text snippets, positions)
+4. User's product specification is combined with the image and telemetry
+5. Data is sent to the `/api/audit` endpoint (simulated)
+6. Gemma 4 analyzes the multimodal input and returns:
+   - Pass/fail verdict
+   - Human-readable summary
+   - Detailed violations (type, severity, affected badge IDs)
+   - Suggested remediation patch (HTML/CSS changes with explanation)
+7. Results are displayed in the verification report panel
+
+#### 3. Key Components
+
+**App.tsx**: Main application controller managing state for:
+- Code editors (HTML/CSS)
+- Product specification text
+- Live URL importing
+- Demo preset selection
+- Audit execution and result handling
+- Patch application
+- Cache management
+
+**SandboxRenderer.tsx**: Responsible for:
+- Rendering HTML/CSS in an isolated iframe
+- Injecting Set-of-Mark badge generation script
+- Handling cross-origin image capture with fallback strategies:
+  * Tier 1: html-to-image with skipFonts + imagePlaceholder
+  * Tier 2: Filtering cross-origin media elements
+  * Tier 3: Native Canvas Set-of-Mark renderer (guaranteed fallback)
+- Communicating telemetry and captured image back to parent via postMessage
+
+**gemmaClient.ts**: Handles AI interaction:
+- SHA-256 hashing of inputs for caching
+- IndexedDB localforage cache for audit results
+- Request/response formatting for the simulated audit API
+- Error handling and cache management
+
+#### 4. User Experience Features
+- **Live URL Import**: Fetches and extracts HTML/CSS from any public website
+- **Demo Presets**: Pre-built examples showcasing common UI issues
+- **Responsive Design Testing**: Mobile/tablet/desktop viewport switching
+- **Telemetry Visibility**: Option to view raw DOM telemetry data
+- **Audit Caching**: SHA-256 based IndexedDB caching to avoid redundant API calls
+- **Clear Visual Feedback**: Color-coded results (red/green) with iconography
+- **One-Click Patching**: Apply AI-suggested fixes directly to code editors
+- **Red Highlight Theme**: Consistent use of red accents for interactive states and feedback
+
+#### 5. Technical Details
+- **Build Tool**: Vite with React and TypeScript plugins
+- **Icon Library**: Lucide React for crisp, configurable icons
+- **Image Processing**: html-to-image library with CORS workaround strategies
+- **Storage**: localforage wrapper around IndexedDB for persistent caching
+- **Messaging**: Cross-frame communication via window.postMessage
+- **Styling Approach**: Tailwind CSS with custom CSS for enhanced interactions
+- **Responsiveness**: Flexible layout adapting to different screen sizes
+
+## TECH STACK
+
+### Dependencies (package.json)
+```json
+{
+  "dependencies": {
+    "@google/genai": "^2.29.1",
+    "html-to-image": "^1.11.13",
+    "localforage": "^1.10.0",
+    "lucide-react": "^1.57.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vercel/node": "^24.0.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.6",
+    "globals": "^17.12.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.69.0",
+    "vite": "^8.3.0"
+  }
+}
+```
+
+### Key Technologies
+- **Framework**: React 18
+- **Language**: TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **AI Model**: Google Gemma 4 (31B/26B parameters)
+- **Icons**: Lucide React
+- **Image Processing**: html-to-image
+- **Storage**: localforage (IndexedDB wrapper)
+- **API Mocking**: Vercel serverless functions
+- **Communication**: window.postMessage for iframe communication
+
+## ARCHITECTURE OVERVIEW
+
+### High-Level Structure
+```
+PixelVision/
+├── public/
+│   ├── index.html
+│   └── logo_dark.png
+├── src/
+│   ├── App.tsx              # Main application component
+│   ├── components/
+│   │   └── SandboxRenderer.tsx  # iframe renderer with SoM
+│   ├── lib/
+│   │   └── gemmaClient.ts   # AI integration & caching
+│   ├── main.tsx             # Entry point
+│   └── index.css            # Global styles
+├── api/
+│   ├── audit.ts             # Simulated Gemma 4 API
+│   └── fetch-url.ts         # URL fetching proxy
+├── vite.config.ts           # Vite configuration with API middleware
+├── tsconfig.json            # TypeScript configuration
+├── package.json             # Dependencies & scripts
+├── README.md                # Project overview
+├── APPLE_DESIGN_PLAN.md     # UI/UX improvement plan
+└── context.txt              # Original context file
+```
+
+### Data Flow
+1. User inputs URL/selects preset/enters code manually
+2. HTML/CSS sent to SandboxRenderer
+3. SandboxRenderer creates iframe and injects SoM script
+4. SoM script generates marked visualization + DOM telemetry
+5. Data sent via postMessage to parent App component
+6. App sends data to gemmaClient for analysis
+7. gemmaClient either:
+   - Uses deterministic demo mode (instant)
+   - Calls /api/audit endpoint (simulated Gemma 4)
+   - Falls back to deterministic audit on error
+8. Results displayed in verification report panel
+9. User can apply suggested patches with one click
+
+## CORE COMPONENTS
+
+### App.tsx
+The main application controller that manages:
+- State for HTML/CSS editors, product spec, live URL input
+- Demo preset selection and management
+- Audit execution state and results
+- Patch application functionality
+- Cache management controls
+- UI layout with sidebar, main content, and verification panels
+
+### SandboxRenderer.tsx
+Responsible for:
+- Creating isolated iframes for rendering HTML/CSS
+- Injecting Set-of-Mark badge generation scripts
+- Handling three-tier image capture strategy for CORS resilience
+- Managing viewport states (mobile/tablet/desktop)
+- Communicating telemetry and captured images via postMessage
+- Providing UI controls for viewport switching and snapshot preview
+
+### gemmaClient.ts
+Handles all AI-related functionality:
+- SHA-256 hashing for cache key generation
+- IndexedDB caching via localforage for audit results
+- Deterministic demo audit fallback for reliable presentations
+- Real API call simulation to /api/audit endpoint
+- Error handling and graceful degradation
+
+### API Endpoints (Vercel Serverless Functions)
+
+#### /api/fetch-url
+- Proxy for fetching and extracting HTML/CSS from external URLs
+- Handles CORS by fetching stylesheets server-side
+- Extracts page title, inline styles, and external CSS
+- Sanitizes HTML by removing scripts/iframes
+- Converts relative URLs to absolute for proper rendering
+
+#### /api/audit
+- Simulated Gemma 4 multimodal API endpoint
+- Accepts image base64, DOM telemetry, spec text, HTML/CSS
+- Returns structured audit results with violations and patches
+- In production, would call actual Gemma 4 model
+- Currently uses deterministic logic for demo reliability
+
+## KEY FEATURES
+
+### Set-of-Mark Technique Implementation
+- Deterministic bounding box generation for DOM elements
+- Visual badge overlay with unique identifiers
+- Cross-origin image capture resilience
+- Structured DOM telemetry generation
+
+### Multimodal Auditing
+- Combined visual + structural analysis
+- Product specification grounding
+- Violation detection with badge references
+- Actionable remediation patch generation
+- Confidence scoring and severity classification
+
+### User Experience
+- Live URL importing with fallback to demos
+- Deterministic demo mode for reliable presentations
+- Responsive design testing across viewports
+- Visual feedback with color-coded results
+- One-click patch application
+- Telemetry inspection for debugging
+- Cache management for performance
+
+### Technical Excellence
+- Type-safe implementation with comprehensive interfaces
+- Modular architecture separating concerns
+- Efficient caching to minimize API calls
+- Graceful error handling and fallbacks
+- Responsive design accommodating various screen sizes
+- Clean, maintainable code with clear separation of concerns
+
+## CURRENT STATE & OPPORTUNITIES
+
+As evidenced by the APPLE_DESIGN_PLAN.md file, the application has been identified for UI/UX improvements following Apple's design principles. The planned enhancements focus on:
+
+- Monochrome color theme with striking red highlights
+- Improved button interaction feedback (press states, spring animations)
+- Enhanced visual hierarchy and depth perception
+- Reduced motion support for accessibility
+- Gesture response improvements
+- Typography enhancements
+
+These improvements would make the application not only functionally powerful but also a delight to use, embodying the principles it helps others implement in their own interfaces.
+
+## APPLE DESIGN IMPROVEMENT PLAN
+
+### Priority Improvements
+
+#### 1. Button Interaction Enhancements (High Impact)
+- Add `:active` states for instant feedback on press
+- Use spring-like scaling transforms instead of CSS transitions
+- Implement proper hover/focus states with depth cues
+- Apply red highlights to interactive states in monochrome theme
+- Files: `src/App.css`
+
+#### 2. Spring-Based Animations for Interactive Elements (High Impact)
+- Replace key transitions with spring-based animations
+- Focus on modal-like elements, expandable sections, interactive feedback
+- Use critically damped springs (no bounce) for most UI
+- Apply animations to color/transform properties
+- Files: `src/App.tsx` (add motion components) and `src/App.css`
+
+#### 3. Reduced Motion Support (Medium Impact - Accessibility)
+- Add CSS media query to reduce animation intensity
+- Replace slides with cross-fades
+- Remove non-essential motion
+- Keep essential feedback but make it subtler
+- Files: `src/App.css`
+
+#### 4. Monochrome Color Theme with Red Highlights (High Impact - Core Request)
+- Implement true monochrome base (shades of gray/black/white)
+- Use striking red (#FF3B30 or similar) for interactive states
+- Create clear visual hierarchy through opacity, contrast, spacing
+- Apply red highlights to parts that "flex the app"
+- Files: `src/App.css`
+
+#### 5. Enhanced Visual Hierarchy (High Impact)
+- Implement clear hierarchy through typography, spacing, depth
+- Use elevation/shadows to indicate layering
+- Apply consistent spacing system (4px increments)
+- Use red accents strategically to draw attention
+- Group related elements with visual containers
+- Files: `src/App.css` and `src/App.tsx` (layout adjustments)
+
+#### 6. Gesture Response Improvements (Medium Impact)
+- Add hysteresis/hit padding for tap targets
+- Implement basic drag feedback where applicable
+- Ensure cancel-by-dragging-away works for buttons
+- Provide visual feedback during gestures with red indicators
+- Files: `src/App.tsx` (add event handlers)
+
+### Implementation Order (by Impact/Effort Ratio)
+1. Monochrome Color Theme with Red Highlights
+2. Button Interaction Enhancements
+3. Enhanced Visual Hierarchy
+4. Reduced Motion Support
+5. Spring-Based Animations
+6. Typography Enhancements
+7. Gesture Response Improvements
+
+## DEVELOPMENT SETUP
+
+### Prerequisites
+- Node.js (v18+ recommended)
+- npm or yarn
+- Git
+
+### Installation
+```bash
+# Clone repository
+git clone <repository-url>
+cd pixelvision
+
+# Install dependencies
+npm install
+
+# Set up environment variables (for real API usage)
+cp .env.example .env.local
+# Add GEMINI_API_KEY to .env.local if using real Gemma 4 API
+```
+
+### Development Commands
+```bash
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Lint code
+npm run lint
+```
+
+### Environment Variables
+- `GEMINI_API_KEY`: Google Gemini API key (required for real AI functionality)
+- `VITE_*`: Vite-exposed environment variables
+
+## API ENDPOINTS
+
+### /api/fetch-url (POST)
+**Request Body:**
+```json
+{
+  "url": "https://example.com"
+}
+```
+
+**Response:**
+```json
+{
+  "url": "https://example.com/",
+  "title": "Example Domain",
+  "html": "<!-- extracted body content -->",
+  "css": "/* extracted/stylesheets */",
+  "error": null
+}
+```
+
+### /api/audit (POST)
+**Request Body:**
+```json
+{
+  "imageBase64": "base64 encoded PNG image",
+  "domTelemetry": [
+    {
+      "badgeId": 1,
+      "tagName": "button",
+      "className": "btn-primary",
+      "id": "submit-btn",
+      "textSnippet": "Submit",
+      "rect": {
+        "x": 100,
+        "y": 200,
+        "width": 80,
+        "height": 40,
+        "top": 200,
+        "right": 180,
+        "bottom": 240,
+        "left": 100
+      }
+    }
+  ],
+  "specText": "Buttons must have minimum 44px touch target height",
+  "htmlCode": "<button>Submit</button>",
+  "cssCode": "button { padding: 8px; }"
+}
+```
+
+**Response:**
+```json
+{
+  "passed": false,
+  "summary": "Button violates 44px touch target specification",
+  "violations": [
+    {
+      "badgeIds": [1],
+      "severity": "WARNING",
+      "type": "SPEC_VIOLATION",
+      "description": "Button measures 40px high, below the 44px minimum"
+    }
+  ],
+  "suggestedPatch": {
+    "explanation": "Increases button height to meet touch target requirements",
+    "html": "",
+    "css": "button { min-height: 44px !important; padding: 12px 24px !important; }"
+  },
+  "_fromCache": false,
+  "_cacheKey": "sha256-hash",
+  "_sourceLabel": "Live Gemma 4 API"
+}
+```
+
+## FILE STRUCTURE
+
+### Root Level
+- `public/` - Static assets served directly
+- `src/` - Source code (React components, logic, styles)
+- `api/` - Vercel serverless function endpoints
+- `node_modules/` - Dependencies
+- `dist/` - Production build output
+- `.git/` - Version control
+
+### Source Code (`src/`)
+- `App.tsx` - Main application component
+- `main.tsx` - React DOM entry point
+- `index.css` - Global CSS styles and variables
+- `components/`
+  - `SandboxRenderer.tsx` - iframe renderer with Set-of-Mark
+- `lib/`
+  - `gemmaClient.ts` - AI integration and caching layer
+- `vite.config.ts` - Vite build configuration with API middleware
+- `tsconfig.json` - TypeScript configuration
+- `tsconfig.app.json` - App-specific TypeScript settings
+- `tsconfig.node.json` - Node/API TypeScript settings
+
+### Configuration Files
+- `package.json` - Dependencies, scripts, project metadata
+- `README.md` - Project overview and usage instructions
+- `APPLE_DESIGN_PLAN.md` - Planned UI/UX improvements
+- `context.txt` - Original context file
+- `SUPER_CONTEXT.txt` - This comprehensive context file
+- `.env.local` - Environment variables (not in git)
+- `.eslintrc.js` - ESLint configuration (if present)
+- `.gitignore` - Git exclusion rules
+
+## CONCLUSION
+
+PixelVision represents an innovative application of multimodal AI to the frontend development workflow. By combining the Set-of-Mark technique with Gemma 4's reasoning capabilities, it provides developers with an objective AI-powered assistant for detecting and fixing UI issues. The application showcases how specialized AI models can be integrated into creative tools to augment human capabilities while maintaining developer control over the implementation process.
+
+With its planned Apple-inspired design improvements, PixelVision aims to become not just a functional tool, but a beautiful and delightful interface that embodies the very principles it helps others implement—creating a meta-experience where the tool itself demonstrates excellence in UI/UX design.
+
+The application is well-positioned for continued growth and enhancement, with a solid technical foundation, clear vision, and actionable improvement path outlined in the Apple Design Plan.
