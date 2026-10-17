@@ -1,75 +1,28 @@
-# React + TypeScript + Vite
+# PixelVision: Gemma 4 Set-of-Mark Workbench
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Deterministic DOM Telemetry + Gemma 4 (31B / 26B) Multimodal Spec Verification
 
-Currently, two official plugins are available:
+**PixelVision** is an AI-powered UI/UX auditing and verification workbench built with React 18, TypeScript, Vite, and Tailwind CSS. It combines Google's **Set-of-Mark (SoM)** visual prompting technique with **Gemma 4 (31B / 26B)** multimodal reasoning to audit live webpages and components against explicit product specifications, detect visual and layout regressions, and apply remediation patches in one click.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Submission for **[Hacktoberfest Hack Day Bengaluru 2026](https://www.mlh.com/events/hacktoberfest-hack-day-bengaluru-a0)** (October 13–18, 2026 | Hosted by KrowdKraft Community at Startup Park, Bengaluru)[cite: 20, 21]:
+- **Primary Track:** Track 01 — *Best Use of Gemma 4* (`G3: Multimodal AI Intelligence — Text + Images`)
+- **Open-Source Alignment:** Track 02 — *Best Open-Source AI Project* (`O3: Trustworthy and Verifiable AI`)
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## The Problem & Vision
 
-## Expanding the ESLint configuration
+Modern frontend development and QA workflows suffer from critical bottlenecks:
+- **Subjective UI Reviews:** Design critiques frequently rely on personal preference rather than objective, verifiable criteria.
+- **Missed Visual Regressions:** Overlapping elements, clipped text, broken visual hierarchy, and inadequate touch targets slip through manual QA.
+- **Spec-to-Code Drift:** Product and design specifications are not always faithfully translated into production HTML and CSS.
+- **Slow Feedback Loops:** Manual design review cycles delay bug detection and remediation before shipping.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+**How PixelVision Solves This:**
+Instead of asking a vision model to guess pixel coordinates from a raw screenshot, PixelVision deterministically scans the live DOM inside an isolated sandbox, injects numbered red **Set-of-Mark (SoM)** badges with exact bounding boxes, and pairs the marked screenshot with structured DOM telemetry. Gemma 4 evaluates both the visual canvas and the structural telemetry against the developer's ground-truth product specification, returning badge-referenced violation reports and an actionable code patch that can be applied directly to the editor in one click.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Try It in 60 Seconds
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
-
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
+Just head over to https://pixelvision-black.vercel.app/
