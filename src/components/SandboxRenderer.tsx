@@ -26,6 +26,14 @@ const VIEWPORT_CONFIG: Record<ViewportMode, { width: number; height: number; lab
 const TRANSPARENT_PIXEL =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
+function preprocessLazyHtml(rawHtml: string): string {
+  return rawHtml
+    .replace(/\sloading=["']lazy["']/gi, ' loading="eager"')
+    .replace(/\sdata-src=(["'][^"']+["'])/gi, ' src=$1')
+    .replace(/\sdata-lazy-src=(["'][^"']+["'])/gi, ' src=$1')
+    .replace(/\sdata-srcset=(["'][^"']+["'])/gi, ' srcset=$1');
+}
+
 function renderSyntheticSomCanvas(
   telemetry: DomTelemetryItem[],
   width: number,
@@ -405,9 +413,7 @@ export function SandboxRenderer({
       }
 
       window.addEventListener('load', () => {
-        setTimeout(() => {
-          requestAnimationFrame(generateSetOfMarks);
-        }, 300);
+        runPipeline();
       });
     })();
   </script>
@@ -549,7 +555,7 @@ export function SandboxRenderer({
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-medium cursor-pointer apple-press ${
                 showSnapshotPreview
                   ? 'bg-white text-zinc-950 border-white'
-                  : 'bg-[#09090b] border-white/[0.08] text-zinc-400 hover:text-zinc-200'
+                  : 'bg-[#09090b] border-white/[0.08] text-zinc-400 hover:text-slate-200'
               }`}
             >
               <Eye className="w-3 h-3" />
