@@ -97,9 +97,9 @@ export function App() {
   const [specText, setSpecText] = useState<string>(DEMO_PRESETS[0].spec ?? '');
 
   const [urlInput, setUrlInput] = useState<string>('https://pixelblast.vercel.app');
-  const [activeSourceUrl, setActiveSourceUrl] = useState<string | undefined>(undefined);
+  const [activeSourceUrl, setActiveSourceUrl] = useState<string | undefined>(DEMO_PRESETS[0].url);
   const [isFetchingUrl, setIsFetchingUrl] = useState<boolean>(false);
-  const [importedTitle, setImportedTitle] = useState<string | null>(null);
+  const [importedTitle, setImportedTitle] = useState<string | null>(DEMO_PRESETS[0].label);
 
   const [imageBase64, setImageBase64] = useState<string>('');
   const [domTelemetry, setDomTelemetry] = useState<DomTelemetryItem[]>([]);
@@ -155,19 +155,23 @@ export function App() {
   };
 
   const handleSelectPreset = (preset: DemoPreset) => {
-    if (preset.url) {
-      // Fetch live URL for URL-based demos
-      setUrlInput(preset.url);
-      handleFetchLiveUrl(preset.url);
-    } else {
-      // Use static HTML/CSS for backward compatibility
-      setActiveSourceUrl(undefined);
-      setImportedTitle(null);
-      setHtmlCode(preset.html ?? '');
+    setImageBase64('');
+    setDomTelemetry([]);
+    setAuditResult(null);
+    setErrorMessage(null);
+
+    if (preset.html) {
+      // Load curated static HTML/CSS preset immediately
+      if (preset.url) setUrlInput(preset.url);
+      setActiveSourceUrl(preset.url);
+      setImportedTitle(preset.label);
+      setHtmlCode(preset.html);
       setCssCode(preset.css ?? '');
       setSpecText(preset.spec ?? '');
-      setAuditResult(null);
-      setErrorMessage(null);
+    } else if (preset.url) {
+      // Fetch live URL when preset has no static HTML
+      setUrlInput(preset.url);
+      void handleFetchLiveUrl(preset.url);
     }
   };
 
@@ -202,7 +206,9 @@ export function App() {
 
     if (patch.html && patch.html.trim().length > 0) {
       if (activeSourceUrl && patch.html.length < htmlCode.length * 0.5) {
-        console.warn('PixelVision: Ignored partial HTML patch for live URL to prevent document destruction. Relying on CSS append.');
+        console.warn(
+          'PixelVision: Ignored partial HTML patch for live URL to prevent document destruction. Relying on CSS append.'
+        );
       } else {
         setHtmlCode(patch.html);
       }
@@ -234,7 +240,7 @@ export function App() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap">
           {DEMO_PRESETS.map((preset) => (
             <button
               key={preset.id}
@@ -279,14 +285,14 @@ export function App() {
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') handleFetchLiveUrl();
+              if (e.key === 'Enter') void handleFetchLiveUrl();
             }}
             placeholder="https://your-deployed-app.vercel.app or any live URL..."
             className="flex-1 max-w-xl px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-600 text-xs text-gray-100 font-mono focus:outline-none focus:border-indigo-500"
           />
           <button
             type="button"
-            onClick={() => handleFetchLiveUrl()}
+            onClick={() => void handleFetchLiveUrl()}
             disabled={isFetchingUrl}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold transition cursor-pointer shadow"
           >
@@ -367,23 +373,25 @@ export function App() {
           </div>
 
           {showRawTelemetry && (
-            <div className="max-h-44 layout-card elevation-1">
-              <div className="text-xs font-semibold text-indigo-400 mb-1">
+            <div className="max-h-44 layout-card elevation-1 overflow-y-auto p-2.5">
+              <div className="text-xs font-semibold text-red-400 mb-1">
                 Live Set-of-Mark DOM Telemetry:
               </div>
-              <pre>{JSON.stringify(domTelemetry, null, 2)}</pre>
+              <pre className="text-[11px] font-mono text-gray-300">
+                {JSON.stringify(domTelemetry, null, 2)}
+              </pre>
             </div>
           )}
 
           <button
             type="button"
-            onClick={handleRunAudit}
+            onClick={() => void handleRunAudit()}
             disabled={isAuditing || !imageBase64}
             className="w-full py-3.5 px-5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed text-white shadow-lg shadow-indigo-600/25 transition cursor-pointer interactive-element"
           >
             <Sparkles className={`w-4 h-4 ${isAuditing ? 'animate-spin' : ''}`} />
             {isAuditing
-              ? 'Running Gemma 4 High-Thinking Multimodal Audit...'
+              ? 'Running Gemma 4 Multimodal Audit...'
               : 'Run Gemma 4 Multimodal Audit'}
           </button>
         </section>
@@ -423,7 +431,7 @@ export function App() {
                   Cross-referencing Set-of-Mark Badges with DOM Bounding Boxes...
                 </div>
                 <p className="text-xs text-gray-400 max-w-xs">
-                  Gemma 4 (ThinkingLevel.HIGH) is inspecting visual overlaps and validating your product spec.
+                  Gemma 4 is inspecting visual overlaps and validating your product spec.
                 </p>
               </div>
             )}
@@ -444,14 +452,14 @@ export function App() {
                 <div
                   className={`p-3.5 rounded-xl border flex items-start gap-3 ${
                     auditResult.passed
-                      ? 'bg-indigo-950/40 border-indigo-800/80 text-indigo-200'
-                      : 'bg-gray-950/40 border-gray-800/80 text-gray-200'
+                      ? 'bg-emerald-950/40 border-emerald-800/80 text-emerald-200'
+                      : 'bg-red-950/40 border-red-800/80 text-red-200'
                   }`}
                 >
                   {auditResult.passed ? (
-                    <CheckCircle2 className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                   ) : (
-                    <AlertTriangle className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
+                    <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                   )}
                   <div className="text-xs space-y-1">
                     <div className="font-bold text-sm">
@@ -483,7 +491,7 @@ export function App() {
                                 Badge #{id}
                               </span>
                             ))}
-                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-gray-600 text-gray-300">
+                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-gray-800 text-gray-300">
                               {v.type}
                             </span>
                           </div>

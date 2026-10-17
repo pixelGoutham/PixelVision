@@ -28,7 +28,19 @@ const TRANSPARENT_PIXEL =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
 /**
- * Tier 3 Fallback: Synthesizes a high-contrast Set-of-Mark visual frame using native HTML5 Canvas
+ * Promotes lazy-loaded images/backgrounds so they render immediately inside the sandboxed iframe.
+ */
+function preprocessLazyHtml(rawHtml: string): string {
+  return rawHtml
+    .replace(/\bloading=["']lazy["']/gi, 'loading="eager"')
+    .replace(/\bdecoding=["']async["']/gi, 'decoding="sync"')
+    .replace(/\bdata-src=/gi, 'src=')
+    .replace(/\bdata-lazy-src=/gi, 'src=')
+    .replace(/\bdata-srcset=/gi, 'srcset=');
+}
+
+/**
+ * Tier YOOOOOOO 3 Fallback: Synthesizes a high-contrast Set-of-Mark visual frame using native HTML5 Canvas
  * if a strict enterprise site (like apple.com) blocks SVG foreignObject serialization.
  */
 function renderSyntheticSomCanvas(
@@ -65,7 +77,12 @@ function renderSyntheticSomCanvas(
     if (item.textSnippet) {
       ctx.fillStyle = '#0f172a';
       ctx.font = '12px ui-sans-serif, system-ui, sans-serif';
-      ctx.fillText(item.textSnippet.slice(0, 38), x + 6, Math.min(y + 18, y + h - 4), Math.max(20, w - 12));
+      ctx.fillText(
+        item.textSnippet.slice(0, 38),
+        x + 6,
+        Math.min(y + 18, y + h - 4),
+        Math.max(20, w - 12)
+      );
     }
 
     // Red Set-of-Mark badge
@@ -117,7 +134,18 @@ export function SandboxRenderer({
   }, [viewport]);
 
   const buildSrcDoc = useCallback(() => {
-    const baseTag = sourceUrl ? `<base href="${sourceUrl}" />` : '';
+    let baseTag = '';
+    if (sourceUrl && /^https?:\/\//i.test(sourceUrl)) {
+      try {
+        const origin = new URL(sourceUrl).origin + '/';
+        baseTag = `<base href="${origin}" target="_blank" />`;
+      } catch {
+        baseTag = `<base href="${sourceUrl}" target="_blank" />`;
+      }
+    }
+
+    const eagerHtml = preprocessLazyHtml(htmlCode);
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -125,7 +153,6 @@ export function SandboxRenderer({
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   ${baseTag}
   <script>
-    // Silence Tailwind Play CDN dev warning in console
     const origWarn = console.warn;
     console.warn = function(...args) {
       if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
@@ -148,62 +175,189 @@ export function SandboxRenderer({
 
     ${cssCode}
 
-    /* Ensure scroll-triggered animation elements (AOS, GSAP) are visible without JS */
+    /* Fast-forward CSS animations, transitions, and scroll-reveal frameworks (AOS, Framer, GSAP) */
+    *, *::before, *::after {
+      animation-delay: -9999s !important;
+      animation-duration: 0.001s !important;
+      transition-delay: 0s !important;
+      transition-duration: 0.001s !important;
+    }
+
     [data-aos],
     [data-aos^="fade"],
     [data-aos^="zoom"],
     [data-aos^="flip"],
-    [data-aos^="slide"] {
+    [data-aos^="slide"],
+    [class*="framer-"],
+    [class*="reveal"] {
       opacity: 1 !important;
       transform: none !important;
       visibility: visible !important;
-      transition: none !important;
     }
   </style>
 </head>
 <body>
   <div id="pixelvision-root">
-    ${htmlCode}
+    ${eagerHtml}
   </div>
 
   <script>
     (function() {
+      // Checks that the element AND all of its ancestor containers are truly visible and uncollapsed
+      function isElementTrulyVisible(el, maxScanHeight) {
+        if (!el || !el.getBoundingClientRect) return false;
+
+        // Skip screen-reader-only or hidden accessibility nodes (e.g., Apple's .visuallyhidden)
+        if (
+          el.classList.contains('visuallyhidden') ||
+          el.classList.contains('sr-only') ||
+          el.getAttribute('aria-hidden') === 'true'
+        ) {
+          return false;
+        }
+
+        const rect = el.getBoundingClientRect();
+        const top = rect.top + window.scrollY;
+        const left = rect.left + window.scrollX;
+
+        if (rect.width < 12 || rect.height < 12) return false;
+        if (rect.bottom <= 0 || rect.right <= 0) return false;
+        if (left >= window.innerWidth || top >= maxScanHeight) return false;
+
+        let curr = el;
+        while (curr && curr !== document.body && curr !== document.documentElement) {
+          if (
+            curr.classList &&
+            (curr.classList.contains('visuallyhidden') || curr.classList.contains('sr-only'))
+          ) {
+            return false;
+          }
+
+          const style = window.getComputedStyle(curr);
+          if (
+            style.display === 'none' ||
+            style.visibility === 'hidden' ||
+            style.visibility === 'collapse' ||
+            parseFloat(style.opacity) < 0.05
+          ) {
+            return false;
+          }
+
+          // Catch collapsed dropdown/flyout menus (like Apple's #globalheader sub-menus)
+          const pRect = curr.getBoundingClientRect();
+          const clipsChildren =
+            style.overflow === 'hidden' ||
+            style.overflowY === 'hidden' ||
+            style.overflowX === 'hidden' ||
+            style.maxHeight === '0px' ||
+            style.clip === 'rect(1px, 1px, 1px, 1px)';
+
+          if (clipsChildren && (pRect.height < 6 || pRect.width < 6)) {
+            return false;
+          }
+
+          curr = curr.parentElement;
+        }
+
+        return true;
+      }
+
+      async function waitForPageStabilization() {
+        // 1. Scroll pass to trigger lazy IntersectionObservers and layout calculations
+        try {
+          window.scrollTo(0, Math.min(document.body.scrollHeight, 1600));
+          await new Promise((r) => setTimeout(r, 180));
+          window.scrollTo(0, 0);
+        } catch (e) {}
+
+        // 2. Promote any remaining lazy images and wait for them to decode (up to 1800ms)
+        const imgs = Array.from(document.querySelectorAll('img'));
+        await Promise.all(
+          imgs.map((img) => {
+            img.loading = 'eager';
+            const dataSrc = img.getAttribute('data-src') || img.getAttribute('data-lazy-src');
+            if (!img.getAttribute('src') && dataSrc) {
+              img.setAttribute('src', dataSrc);
+            }
+            if (img.complete) return Promise.resolve();
+            return new Promise((resolve) => {
+              const timer = setTimeout(resolve, 1800);
+              const done = () => {
+                clearTimeout(timer);
+                resolve();
+              };
+              img.addEventListener('load', done, { once: true });
+              img.addEventListener('error', done, { once: true });
+            });
+          })
+        );
+
+        // 3. Wait for web fonts (e.g. Google Fonts Outfit, Apple SF Pro)
+        if (document.fonts && document.fonts.ready) {
+          await Promise.race([
+            document.fonts.ready,
+            new Promise((r) => setTimeout(r, 1000)),
+          ]);
+        }
+
+        // 4. Extra settle buffer for Tailwind CDN & keyframe animations
+        await new Promise((r) => setTimeout(r, 450));
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      }
+
       function generateSetOfMarks() {
         const existingOverlay = document.getElementById('pv-som-overlay');
         if (existingOverlay) existingOverlay.remove();
 
         const overlay = document.createElement('div');
         overlay.id = 'pv-som-overlay';
-        overlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2147483647;';
+        overlay.style.cssText =
+          'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2147483647;';
         document.body.appendChild(overlay);
 
         const root = document.getElementById('pixelvision-root') || document.body;
-        const candidates = root.querySelectorAll('button, a, input, select, textarea, img, h1, h2, h3, h4, p, span');
-        
-        const seenElements = new Set();
+        // Prioritize interactive controls and semantic headings/media before generic paragraphs/spans
+        const candidates = root.querySelectorAll(
+          'button, a, input, select, textarea, [role="button"], h1, h2, h3, h4, img, p, span'
+        );
+
+        const badgedElements = [];
         const telemetry = [];
         let badgeCounter = 1;
+        const maxScanHeight = Math.max(window.innerHeight * 1.35, 1100);
 
         candidates.forEach((el) => {
           if (badgeCounter > 40) return;
-          if (seenElements.has(el)) return;
           if (el.id === 'pv-som-overlay' || el.closest('#pv-som-overlay')) return;
 
+          // Prevent duplicate nested badges (e.g., a <span> or <p> inside an already-badged <a> or <button>)
+          const hasBadgedAncestorOrChild = badgedElements.some(
+            (existing) => existing.contains(el) || el.contains(existing)
+          );
+          if (hasBadgedAncestorOrChild) return;
+
+          if (!isElementTrulyVisible(el, maxScanHeight)) return;
+
           const rect = el.getBoundingClientRect();
-          if (rect.width < 10 || rect.height < 10) return;
-
-          const style = window.getComputedStyle(el);
-          if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) {
-            return;
-          }
-
-          seenElements.add(el);
-          const badgeId = badgeCounter++;
-
           const top = Math.round(rect.top + window.scrollY);
           const left = Math.round(rect.left + window.scrollX);
           const width = Math.round(rect.width);
           const height = Math.round(rect.height);
+
+          // Skip oversized full-page wrapper containers
+          if (width > window.innerWidth * 0.96 && height > window.innerHeight * 0.85) {
+            return;
+          }
+
+          // Skip empty generic spans/paragraphs with no text
+          const rawText = (el.innerText || el.textContent || '').trim().replace(/\\s+/g, ' ');
+          const tag = el.tagName.toLowerCase();
+          if ((tag === 'span' || tag === 'p') && rawText.length < 2) {
+            return;
+          }
+
+          badgedElements.push(el);
+          const badgeId = badgeCounter++;
 
           const box = document.createElement('div');
           box.style.cssText = [
@@ -212,10 +366,10 @@ export function SandboxRenderer({
             'left:' + left + 'px',
             'width:' + width + 'px',
             'height:' + height + 'px',
-            'border:1.5px dashed rgba(239, 68, 68, 0.8)',
+            'border:1.5px dashed rgba(239, 68, 68, 0.85)',
             'background:rgba(239, 68, 68, 0.04)',
             'border-radius:3px',
-            'pointer-events:none'
+            'pointer-events:none',
           ].join(';');
           overlay.appendChild(box);
 
@@ -239,15 +393,13 @@ export function SandboxRenderer({
             'border-radius:4px',
             'border:1.5px solid #ffffff',
             'box-shadow:0 2px 4px rgba(0,0,0,0.4)',
-            'z-index:2147483647'
+            'z-index:2147483647',
           ].join(';');
           overlay.appendChild(badge);
 
-          const rawText = (el.innerText || el.textContent || '').trim().replace(/\\s+/g, ' ');
-
           telemetry.push({
             badgeId: badgeId,
-            tagName: el.tagName.toLowerCase(),
+            tagName: tag,
             className: typeof el.className === 'string' ? el.className.slice(0, 80) : '',
             id: el.id || '',
             textSnippet: rawText.slice(0, 80),
@@ -259,22 +411,31 @@ export function SandboxRenderer({
               top: top,
               right: left + width,
               bottom: top + height,
-              left: left
-            }
+              left: left,
+            },
           });
         });
 
-        window.parent.postMessage({
-          type: 'PIXELVISION_TELEMETRY_READY',
-          telemetry: telemetry
-        }, '*');
+        window.parent.postMessage(
+          {
+            type: 'PIXELVISION_TELEMETRY_READY',
+            telemetry: telemetry,
+          },
+          '*'
+        );
       }
 
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          requestAnimationFrame(generateSetOfMarks);
-        }, 350);
-      });
+      let hasRun = false;
+      async function runPipeline() {
+        if (hasRun) return;
+        hasRun = true;
+        await waitForPageStabilization();
+        generateSetOfMarks();
+      }
+
+      window.addEventListener('load', runPipeline);
+      // Safety fallback in case an external asset hangs the window 'load' event
+      setTimeout(runPipeline, 2800);
     })();
   </script>
 </body>
@@ -319,7 +480,7 @@ export function SandboxRenderer({
         });
       } catch {
         try {
-          // Tier 2: Strip cross-origin <picture>, <source>, <img>, <video>, and <svg> tags
+          // Tier 2: Strip cross-origin <picture>, <source>, <img>, <video>, and <iframe> tags
           base64Png = await toPng(bodyEl, {
             width: captureWidth,
             height: captureHeight,
@@ -362,28 +523,28 @@ export function SandboxRenderer({
   const scaledWrapperHeight = Math.round(currentDim.height * scaleFactor);
 
   return (
-    <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
-      <div className="flex items-center justify-between px-3 py-2 bg-slate-950/80 border-b border-slate-800 text-xs flex-wrap gap-2">
+    <div className="flex flex-col h-full bg-gray-950 border border-gray-800 rounded-xl overflow-hidden shadow-xl">
+      <div className="flex items-center justify-between px-3 py-2 bg-gray-950/90 border-b border-gray-800 text-xs flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 font-semibold text-slate-200">
-            <Layers className="w-3.5 h-3.5 text-indigo-400" />
+          <span className="flex items-center gap-1.5 font-semibold text-gray-200">
+            <Layers className="w-3.5 h-3.5 text-red-400" />
             SoM Sandbox
           </span>
           <span className="px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/30 font-mono text-[11px]">
             {badgeCount} Badges
           </span>
-          <span className="text-[11px] font-mono text-slate-400">
+          <span className="text-[11px] font-mono text-gray-400">
             ({currentDim.label})
           </span>
           {isCapturing && (
-            <span className="flex items-center gap-1 text-amber-400 animate-pulse text-[11px]">
+            <span className="flex items-center gap-1 text-red-400 animate-pulse text-[11px]">
               <Camera className="w-3 h-3" />
               Capturing...
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800">
+        <div className="flex items-center gap-1 bg-gray-900 p-0.5 rounded-lg border border-gray-800">
           <button
             type="button"
             onClick={() => {
@@ -391,7 +552,7 @@ export function SandboxRenderer({
               setRenderKey((k) => k + 1);
             }}
             className={`p-1 rounded transition cursor-pointer ${
-              viewport === 'mobile' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
+              viewport === 'mobile' ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-gray-200'
             }`}
             title="Mobile Viewport (375px)"
           >
@@ -404,7 +565,7 @@ export function SandboxRenderer({
               setRenderKey((k) => k + 1);
             }}
             className={`p-1 rounded transition cursor-pointer ${
-              viewport === 'tablet' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
+              viewport === 'tablet' ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-gray-200'
             }`}
             title="Tablet Viewport (768px)"
           >
@@ -417,7 +578,7 @@ export function SandboxRenderer({
               setRenderKey((k) => k + 1);
             }}
             className={`p-1 rounded transition cursor-pointer ${
-              viewport === 'desktop' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
+              viewport === 'desktop' ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-gray-200'
             }`}
             title="Desktop Viewport (1280px scaled)"
           >
@@ -432,8 +593,8 @@ export function SandboxRenderer({
               onClick={() => setShowSnapshotPreview((prev) => !prev)}
               className={`flex items-center gap-1 px-2 py-1 rounded-md border transition text-[11px] cursor-pointer ${
                 showSnapshotPreview
-                  ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300'
-                  : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-slate-200'
+                  ? 'bg-red-600/20 border-red-500 text-red-300'
+                  : 'bg-gray-900 border-gray-700 text-gray-400 hover:text-gray-200'
               }`}
             >
               <Eye className="w-3 h-3" />
@@ -443,7 +604,7 @@ export function SandboxRenderer({
           <button
             type="button"
             onClick={() => setRenderKey((prev) => prev + 1)}
-            className="flex items-center gap-1 px-2 py-1 rounded-md bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 transition text-[11px] cursor-pointer"
+            className="flex items-center gap-1 px-2 py-1 rounded-md bg-gray-900 hover:bg-gray-800 text-gray-300 border border-gray-700 transition text-[11px] cursor-pointer"
           >
             <RefreshCw className="w-3 h-3" />
             Re-Badge
@@ -453,11 +614,11 @@ export function SandboxRenderer({
 
       <div
         ref={stageContainerRef}
-        className="relative flex-1 bg-slate-950 p-3 flex items-start justify-center overflow-auto"
+        className="relative flex-1 bg-gray-950 p-3 flex items-start justify-center overflow-auto"
       >
         {showSnapshotPreview && lastSnapshot ? (
-          <div className="w-full bg-white rounded-lg shadow-2xl overflow-hidden border-2 border-slate-700">
-            <div className="bg-indigo-950 text-indigo-200 text-[11px] px-3 py-1 font-mono border-b border-indigo-800">
+          <div className="w-full bg-white rounded-lg shadow-2xl overflow-hidden border-2 border-gray-700">
+            <div className="bg-red-950 text-red-200 text-[11px] px-3 py-1 font-mono border-b border-red-800">
               Exact Base64 Set-of-Mark PNG Sent to Gemma 4 ({currentDim.label})
             </div>
             <img
@@ -472,7 +633,7 @@ export function SandboxRenderer({
               width: `${Math.round(currentDim.width * scaleFactor)}px`,
               height: `${scaledWrapperHeight}px`,
             }}
-            className="relative overflow-hidden rounded-lg shadow-2xl border-2 border-slate-700 bg-white shrink-0"
+            className="relative overflow-hidden rounded-lg shadow-2xl border-2 border-gray-700 bg-white shrink-0"
           >
             <iframe
               key={`${renderKey}-${viewport}-${htmlCode.length}-${cssCode.length}`}
