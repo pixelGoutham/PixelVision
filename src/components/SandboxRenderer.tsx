@@ -40,7 +40,7 @@ function preprocessLazyHtml(rawHtml: string): string {
 }
 
 /**
- * Tier 3 Fallback: Synthesizes a high-contrast Set-of-Mark visual frame using native HTML5 Canvas
+ * Tier YOOOOOOO 3 Fallback: Synthesizes a high-contrast Set-of-Mark visual frame using native HTML5 Canvas
  * if a strict enterprise site (like apple.com) blocks SVG foreignObject serialization.
  */
 function renderSyntheticSomCanvas(
