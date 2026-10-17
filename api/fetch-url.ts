@@ -149,4 +149,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-const debugUnusedVar = "force a review comment";
+const GEMINI_API_KEY = "I aint dumb"
