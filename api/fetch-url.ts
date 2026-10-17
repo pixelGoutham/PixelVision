@@ -67,7 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // 3. Fetch up to 4 external <link rel="stylesheet"> files on the server so html-to-image avoids CORS errors
+    // 3. Fetch external <link rel="stylesheet"> files
     const linkRegex = /<link[^>]+rel=["']?stylesheet["']?[^>]*>/gi;
     const hrefRegex = /href=["']([^"']+)["']/i;
     const stylesheetUrls: string[] = [];
@@ -90,9 +90,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const cssRes = await fetch(cssUrl);
         if (cssRes.ok) {
           const cssText = await cssRes.text();
-          // Convert relative url(...) inside CSS to absolute URLs
+          // Fixed regex for absolute URL conversion inside CSS url(...)
           const resolvedCss = cssText.replace(
-            /url\(['"]?(?!data:\vert{}https?:\vert{}\/\/)([^'")]+)['"]?\)/gi,
+            /url\(['"]?(?!data:\vert{}https?:\/\/)([^'")]+)['"]?\)/gi,
             (_match, relPath: string) => {
               try {
                 return `url("${new URL(relPath, cssUrl).toString()}")`;
@@ -112,11 +112,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const externalCssList = await Promise.all(fetchedCssPromises);
     const combinedCss = [...externalCssList.filter(Boolean), ...styleBlocks].join('\n\n');
 
-    // 4. Extract <body> content and sanitize scripts/event handlers
+    // 4. Extract <body> content and sanitize scripts/iframes
     const bodyMatch = rawHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
     let cleanBodyHtml = bodyMatch ? bodyMatch[1] : rawHtml;
 
-    // Strip <script>, <iframe>, <noscript>, and <style> tags from body
     cleanBodyHtml = cleanBodyHtml
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
       .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
