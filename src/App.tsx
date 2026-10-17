@@ -25,9 +25,10 @@ import {
 interface DemoPreset {
   id: string;
   label: string;
-  html: string;
-  css: string;
-  spec: string;
+  html?: string;
+  css?: string;
+  spec?: string;
+  url?: string;
 }
 
 const DEMO_PRESETS: DemoPreset[] = [
@@ -114,6 +115,7 @@ const DEMO_PRESETS: DemoPreset[] = [
   {
     id: 'tharunspeaks-pricing',
     label: 'Tharun Speaks - Pricing Cards',
+    url: 'https://tharunspeaks.in/',
     html: `<!-- Extracted from https://tharunspeaks.in/ pricing section -->
 <section class="section" id="pricing">
   <h2>The Best Prices Ever</h2>
@@ -182,6 +184,7 @@ body{margin:0;font-family:Arial,sans-serif;background:#f9f9f9;color:#222}
   {
     id: 'apple-hero',
     label: 'Apple.com - iPhone Hero Section',
+    url: 'https://www.apple.com/',
     html: `<!-- Extracted from https://www.apple.com/ hero section -->
 <header>
   <a href="/" title="Apple">Apple</a>
@@ -232,9 +235,9 @@ interface FetchUrlResponse {
 }
 
 export function App() {
-  const [htmlCode, setHtmlCode] = useState<string>(DEMO_PRESETS[0].html);
-  const [cssCode, setCssCode] = useState<string>(DEMO_PRESETS[0].css);
-  const [specText, setSpecText] = useState<string>(DEMO_PRESETS[0].spec);
+  const [htmlCode, setHtmlCode] = useState<string>(DEMO_PRESETS[0].html ?? '');
+  const [cssCode, setCssCode] = useState<string>(DEMO_PRESETS[0].css ?? '');
+  const [specText, setSpecText] = useState<string>(DEMO_PRESETS[0].spec ?? '');
 
   const [urlInput, setUrlInput] = useState<string>('https://pixelblast.vercel.app');
   const [activeSourceUrl, setActiveSourceUrl] = useState<string | undefined>(undefined);
@@ -295,13 +298,20 @@ export function App() {
   };
 
   const handleSelectPreset = (preset: DemoPreset) => {
-    setActiveSourceUrl(undefined);
-    setImportedTitle(null);
-    setHtmlCode(preset.html);
-    setCssCode(preset.css);
-    setSpecText(preset.spec);
-    setAuditResult(null);
-    setErrorMessage(null);
+    if (preset.url) {
+      // Fetch live URL for URL-based demos
+      setUrlInput(preset.url);
+      handleFetchLiveUrl(preset.url);
+    } else {
+      // Use static HTML/CSS for backward compatibility
+      setActiveSourceUrl(undefined);
+      setImportedTitle(null);
+      setHtmlCode(preset.html ?? '');
+      setCssCode(preset.css ?? '');
+      setSpecText(preset.spec ?? '');
+      setAuditResult(null);
+      setErrorMessage(null);
+    }
   };
 
   const handleRunAudit = async () => {
