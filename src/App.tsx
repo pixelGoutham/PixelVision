@@ -25,91 +25,130 @@ import {
 interface DemoPreset {
   id: string;
   label: string;
-  html: string;
-  css: string;
-  spec: string;
+  html?: string;
+  css?: string;
+  spec?: string;
+  url?: string;
 }
 
 const DEMO_PRESETS: DemoPreset[] = [
   {
-    id: 'pricing-overlap',
-    label: 'Preset 1: Pricing Card Overlap',
-    html: `<div class="card-container p-5 bg-slate-50 rounded-2xl border border-slate-200 relative max-w-sm mx-auto mt-4">
-  <span class="promo-pill bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-    LIMITED FLASH DEAL
-  </span>
-
-  <h2 class="price-heading text-3xl font-extrabold text-slate-900 mt-1">
-    $49.99 / mo
-  </h2>
-
-  <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-    Unlock full multimodal DOM telemetry, automated visual regression checks, and instant code patches.
-  </p>
-
-  <div class="mt-4 flex items-center justify-between">
-    <button class="cta-btn bg-indigo-600 text-white text-xs px-3 py-1 rounded">
-      Claim Offer Now
-    </button>
-    <a href="#terms" class="terms-link text-xs text-slate-400 underline">
-      Cancel anytime
-    </a>
+    id: 'tharunspeaks-pricing',
+    label: 'Tharun Speaks - Pricing Cards',
+    url: 'https://tharunspeaks.in/',
+    html: `<!-- Extracted from https://tharunspeaks.in/ pricing section -->
+<section class="section" id="pricing">
+  <h2>The Best Prices Ever</h2>
+  <p>Pick your plan and start EDITING today. One flat fee.</p>
+  <div class="grid pricing-grid">
+    <div class="card">
+      <h3>ESSENTIAL</h3>
+      <div class="price">₹4,999</div>
+      <p>+GST</p>
+      <p>For students passionate about video editing</p>
+      <ul>
+        <li>Studio Quality Lectures</li>
+        <li>Weekly 2 live classes</li>
+        <li>Access to the community</li>
+      </ul>
+      <a href="#" class="cta">Join Now</a>
+    </div>
+    <div class="card">
+      <h3>ELITE</h3>
+      <div class="price">₹6,999</div>
+      <p>+GST</p>
+      <p>Most popular</p>
+      <p>For creative minds eager to excel in Video Editing, Design & Content Creation</p>
+      <ul>
+        <li>Everything In Essential</li>
+        <li>Dedicated Mentors</li>
+        <li>Weekly Social Media Masterclasses</li>
+        <li>Edit Battles, Community Games & Challenges</li>
+        <li>Video Editing Assets worth ₹5,000</li>
+      </ul>
+      <a href="#" class="cta">Join Now</a>
+    </div>
+    <div class="card">
+      <h3>ULTIMATE</h3>
+      <div class="price">₹14,999</div>
+      <p>+GST</p>
+      <p>For students serious about building a career in Creative Industry</p>
+      <ul>
+        <li>Everything in Elite</li>
+        <li>Personal Learning Manager</li>
+        <li>Access to placement worth ₹30k/Month</li>
+        <li>Special Group with Tharun</li>
+        <li>Video Editing Assets worth ₹10,000</li>
+      </ul>
+      <a href="#" class="cta">Join Now</a>
+    </div>
   </div>
-</div>`,
-    css: `.promo-pill {
-  position: absolute;
-  top: 22px;
-  left: 24px;
-  z-index: 10;
-}
-
-.price-heading {
-  position: relative;
-  margin-top: 2px;
-}
-
-.cta-btn {
-  height: 26px;
-}
-
-.terms-link {
-  margin-left: -28px;
-}`,
-    spec: `1. No text or badge elements may visually overlap. The "LIMITED FLASH DEAL" promo pill must sit cleanly above the "$49.99 / mo" price heading with at least 8px vertical separation.
-2. The primary "Claim Offer Now" button (.cta-btn) must be full-width (100% width) and have a minimum touch-target height of 44px.
-3. The "Cancel anytime" link must be centered below the primary CTA button, not overlapping or beside it.`,
+</section>`,
+    css: `:root { --primary:#ff6b6b; --bg:#fff; --muted:#555; }
+body{margin:0;font-family:Arial,sans-serif;background:#f9f9f9;color:#222}
+.section{padding:2rem;max-width:1100px;margin:auto}
+.grid{display:grid;gap:1.5rem}
+.pricing-grid{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.card{background:#fff;border-radius:8px;padding:1.5rem;box-shadow:0 2px 6px rgba(0,0,0,.1);}
+.card h3{margin-top:0;color:var(--primary)}
+.price{font-size:1.8rem;margin:.5rem 0;color:#222}
+.cta{display:inline-block;padding:.8rem 1.5rem;background:#fff;color:var(--primary);
+      border-radius:4px;text-decoration:none;font-weight:bold}
+.cta:hover{opacity:0.9}`,
+    spec: `1. The pricing cards should be evenly spaced with adequate gaps between them (minimum 24px).
+2. Each "Join Now" button must have a minimum touch-target height of 44px and adequate contrast.
+3. The price text (₹4,999, ₹6,999, ₹14,999) should be clearly readable and not overlap with other elements.
+4. The "+GST" text should be positioned clearly below the price without overlapping.
+5. On mobile viewports, the cards should stack vertically with proper spacing.`,
   },
   {
-    id: 'navbar-collision',
-    label: 'Preset 2: Mobile Navbar Collision',
-    html: `<header class="nav-bar bg-slate-900 text-white p-3 rounded-xl flex items-center justify-between relative">
-  <div class="logo font-black text-lg tracking-tight">HackDayBLR</div>
-  <nav class="nav-links flex gap-4 text-xs text-slate-300">
-    <a href="#tracks">Tracks</a>
-    <a href="#prizes">Prizes</a>
-    <a href="#schedule">Schedule</a>
-    <a href="#sponsors">Sponsors</a>
+    id: 'apple-hero',
+    label: 'Apple.com - iPhone Hero Section',
+    url: 'https://www.apple.com/',
+    html: `<!-- Extracted from https://www.apple.com/ hero section -->
+<header>
+  <a href="/" title="Apple">Apple</a>
+  <nav>
+    <ul>
+      <li><a href="/mac/">Mac</a></li>
+      <li><a href="/ipad/">iPad</a></li>
+      <li><a href="/iphone/">iPhone</a></li>
+    </ul>
   </nav>
-  <button class="rsvp-btn bg-emerald-500 text-slate-950 font-bold text-xs px-3 py-1 rounded">
-    RSVP Now
-  </button>
 </header>
-<section class="hero mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-  <h1 class="text-xl font-bold text-slate-900">Hacktoberfest Bengaluru 2026</h1>
-  <p class="text-xs text-slate-600 mt-1">Build with Gemma 4 multimodal intelligence at Startup Park.</p>
+
+<section class="hero">
+  <h1>iPhone Duo</h1>
+  <p>Hello, hello.Hello, Hello. hello.</p>
+  <p>Available starting 10.23</p>
+  <a href="/iphone-duo/">Learn more</a>
+  <a href="/us/shop/goto/buy_iphone/iphone_duo">Pre‑order</a>
 </section>`,
-    css: `.nav-links {
-  position: absolute;
-  left: 95px;
-  white-space: nowrap;
-}
-.rsvp-btn {
-  z-index: 20;
-  height: 24px;
-}`,
-    spec: `1. Navigation links must never collide with or overlap the "RSVP Now" button on mobile viewports.
-2. The "RSVP Now" button must have a minimum touch target height of 40px.
-3. On narrow viewports, the header should stack or wrap cleanly so all links and buttons remain completely legible.`,
+    css: `/* Apple-like styling - simplified for demo */
+body { margin: 0; font-family: system-ui, sans-serif; background: #fff; color: #000; }
+header { padding: 1rem 2rem; background: #f5f5f5; border-bottom: 1px solid #e5e5e5; }
+nav ul { display: flex; gap: 2rem; list-style: none; margin: 0; padding: 0; }
+nav a { text-decoration: none; color: #424242; font-weight: 500; }
+nav a:hover { text-decoration: underline; }
+.hero { text-align: center; padding: 4rem 2rem; }
+.hero h1 { font-size: 3rem; margin: 0 0 1rem 0; font-weight: 600; line-height: 1.1; }
+.hero p { font-size: 1.25rem; margin: 0 0 1.5rem 0; opacity: 0.7; max-width: 600px; margin-left: auto; margin-right: auto; }
+.hero a { display: inline-block; padding: 0.75rem 1.5rem; margin: 0 0.5rem; border-radius: 0.5rem;
+          font-weight: 500; text-decoration: none; }
+.hero a:nth-child(1) { background: #007aff; color: white; } /* Learn more - blue */
+.hero a:nth-child(2) { border: 2px solid #007aff; color: #007aff; } /* Pre-order - outline */
+.hero a:hover { opacity: 0.9; }`,
+    spec: `1. The "Learn more" and "Pre‑order" buttons should have adequate spacing between them (minimum 12px).
+2. Both buttons must have a minimum touch-target height of 44px.
+3. The hero heading "iPhone Duo" should have adequate contrast against the background.
+4. The body text "Hello, hello.Hello, Hello. hello." should be readable and not overlap with other elements.
+5. The Apple navigation links should have adequate hit areas and not overlap with each other on mobile viewports.`,
+  },
+  {
+    id: 'pixelblast-demo',
+    label: 'Pixel Blast - Python Course',
+    url: 'https://pixelblast.vercel.app/',
+    // html/css/spec optional - will be fetched live
   },
 ];
 
@@ -122,9 +161,9 @@ interface FetchUrlResponse {
 }
 
 export function App() {
-  const [htmlCode, setHtmlCode] = useState<string>(DEMO_PRESETS[0].html);
-  const [cssCode, setCssCode] = useState<string>(DEMO_PRESETS[0].css);
-  const [specText, setSpecText] = useState<string>(DEMO_PRESETS[0].spec);
+  const [htmlCode, setHtmlCode] = useState<string>(DEMO_PRESETS[0].html ?? '');
+  const [cssCode, setCssCode] = useState<string>(DEMO_PRESETS[0].css ?? '');
+  const [specText, setSpecText] = useState<string>(DEMO_PRESETS[0].spec ?? '');
 
   const [urlInput, setUrlInput] = useState<string>('https://pixelblast.vercel.app');
   const [activeSourceUrl, setActiveSourceUrl] = useState<string | undefined>(undefined);
@@ -185,13 +224,20 @@ export function App() {
   };
 
   const handleSelectPreset = (preset: DemoPreset) => {
-    setActiveSourceUrl(undefined);
-    setImportedTitle(null);
-    setHtmlCode(preset.html);
-    setCssCode(preset.css);
-    setSpecText(preset.spec);
-    setAuditResult(null);
-    setErrorMessage(null);
+    if (preset.url) {
+      // Fetch live URL for URL-based demos
+      setUrlInput(preset.url);
+      handleFetchLiveUrl(preset.url);
+    } else {
+      // Use static HTML/CSS for backward compatibility
+      setActiveSourceUrl(undefined);
+      setImportedTitle(null);
+      setHtmlCode(preset.html ?? '');
+      setCssCode(preset.css ?? '');
+      setSpecText(preset.spec ?? '');
+      setAuditResult(null);
+      setErrorMessage(null);
+    }
   };
 
   const handleRunAudit = async () => {
