@@ -1,0 +1,128 @@
+# PixelVision: Gemma 4 Set-of-Mark Workbench
+
+## What It Does
+PixelVision is a React + TypeScript + Vite application that serves as an AI-powered UI/UX auditing workbench. It leverages Google's Gemma 4 multimodal AI model (31B/26B parameters) to analyze web pages for visual and layout issues using the Set-of-Mark technique. The application allows users to:
+- Import live website URLs or use preset demo cases
+- Visualize DOM elements with Set-of-Mark badges
+- Run multimodal audits against product specifications
+- Receive AI-generated violation reports and suggested remediation patches
+- Apply AI-suggested fixes directly to the code editors
+
+## The Arc (Purpose & Vision)
+PixelVision was created to bridge the gap between advanced AI capabilities and practical UI/UX development workflows. The core vision is to:
+1. Make cutting-edge multimodal AI (Gemma 4) accessible to frontend developers and designers
+2. Provide objective, AI-driven feedback on visual design quality
+3. Automate detection of common UI issues like overlapping elements, inadequate touch targets, and layout breaks
+4. Close the loop between AI analysis and implementation by providing actionable, editable patches
+5. Serve as a verification engine that ensures UIs meet specified product requirements before shipping
+
+The application represents an exploration of how specialized AI models can be integrated into creative workflows to augment human judgment rather than replace it.
+
+## The Why (Motivation & Problem Space)
+Modern web development faces several challenges that PixelVision addresses:
+- **Subjective UI Reviews**: Design critiques often rely on personal preference rather than objective criteria
+- **Missed Visual Issues**: Overlapping elements, insufficient touch targets, and layout breaks slip through manual QA
+- **Inconsistent Implementation**: Design specs aren't always faithfully translated to code
+- **Accessibility Oversights**: Touch target sizing and visual hierarchy issues affect usability
+- **Slow Feedback Cycles**: Manual review processes delay issue detection and resolution
+
+PixelVision solves these by:
+- Using Gemma 4's multimodal reasoning to evaluate UIs against explicit product specifications
+- Applying the Set-of-Mark technique to provide spatial context to the AI model
+- Generating specific, actionable feedback with visual explanations
+- Offering one-click application of AI-suggested fixes
+- Enabling rapid iteration between design, implementation, and verification
+
+## The How (Technical Implementation)
+
+### Architecture Overview
+PixelVision follows a client-side only architecture with simulated backend APIs:
+- **Frontend**: React 18 + TypeScript + Vite
+- **State Management**: React hooks (useState, useCallback, useEffect)
+- **UI Components**: Custom components with Lucide React icons
+- **Styling**: Tailwind CSS with customizations
+- **AI Integration**: Simulated API endpoints (`/api/fetch-url`, `/api/audit`) that would connect to Gemma 4 in production
+
+### Core Technologies & Techniques
+
+#### 1. Set-of-Mark Visualization
+The application implements Google's Set-of-Mark technique:
+- DOM elements are scanned for interactive and visual candidates (buttons, links, headers, etc.)
+- Each element receives a unique badge ID and visual bounding box
+- Badges are rendered as red circles with white numbers in an overlay
+- The marked visualization is captured as an image and sent to Gemma 4 alongside DOM telemetry
+
+#### 2. Multimodal AI Pipeline
+The auditing process follows this flow:
+1. User provides HTML/CSS (via URL import, preset selection, or manual entry)
+2. SandboxRenderer creates an iframe with the provided code
+3. Set-of-Mark script runs in the iframe, generating:
+   - Base64 PNG image of the marked visualization
+   - DOM telemetry array (element properties, text snippets, positions)
+4. User's product specification is combined with the image and telemetry
+5. Data is sent to the `/api/audit` endpoint (simulated)
+6. Gemma 4 analyzes the multimodal input and returns:
+   - Pass/fail verdict
+   - Human-readable summary
+   - Detailed violations (type, severity, affected badge IDs)
+   - Suggested remediation patch (HTML/CSS changes with explanation)
+7. Results are displayed in the verification report panel
+
+#### 3. Key Components
+
+**App.tsx**: Main application controller managing state for:
+- Code editors (HTML/CSS)
+- Product specification text
+- Live URL importing
+- Demo preset selection
+- Audit execution and result handling
+- Patch application
+- Cache management
+
+**SandboxRenderer.tsx**: Responsible for:
+- Rendering HTML/CSS in an isolated iframe
+- Injecting Set-of-Mark badge generation script
+- Handling cross-origin image capture with fallback strategies:
+  * Tier 1: html-to-image with skipFonts + imagePlaceholder
+  * Tier 2: Filtering cross-origin media elements
+  * Tier 3: Native Canvas Set-of-Mark renderer (guaranteed fallback)
+- Communicating telemetry and captured image back to parent via postMessage
+
+**gemmaClient.ts**: Handles AI interaction:
+- SHA-256 hashing of inputs for caching
+- IndexedDB localforage cache for audit results
+- Request/response formatting for the simulated audit API
+- Error handling and cache management
+
+#### 4. User Experience Features
+- **Live URL Import**: Fetches and extracts HTML/CSS from any public website
+- **Demo Presets**: Pre-built examples showcasing common UI issues
+- **Responsive Design Testing**: Mobile/tablet/desktop viewport switching
+- **Telemetry Visibility**: Option to view raw DOM telemetry data
+- **Audit Caching**: SHA-256 based IndexedDB caching to avoid redundant API calls
+- **Clear Visual Feedback**: Color-coded results (red/green) with iconography
+- **One-Click Patching**: Apply AI-suggested fixes directly to code editors
+- **Red Highlight Theme**: Consistent use of red accents for interactive states and feedback
+
+#### 5. Technical Details
+- **Build Tool**: Vite with React and TypeScript plugins
+- **Icon Library**: Lucide React for crisp, configurable icons
+- **Image Processing**: html-to-image library with CORS workaround strategies
+- **Storage**: localforage wrapper around IndexedDB for persistent caching
+- **Messaging**: Cross-frame communication via window.postMessage
+- **Styling Approach**: Tailwind CSS with custom CSS for enhanced interactions
+- **Responsiveness**: Flexible layout adapting to different screen sizes
+
+### Current State & Opportunities
+As evidenced by the APPLE_DESIGN_PLAN.md file, the application has been identified for UI/UX improvements following Apple's design principles. The planned enhancements focus on:
+- Monochrome color theme with striking red highlights
+- Improved button interaction feedback (press states, spring animations)
+- Enhanced visual hierarchy and depth perception
+- Reduced motion support for accessibility
+- Gesture response improvements
+- Typography enhancements
+
+These improvements would make the application not only functionally powerful but also a delight to use, embodying the principles it helps others implement in their own interfaces.
+
+## Summary
+PixelVision represents an innovative application of multimodal AI to the frontend development workflow. By combining the Set-of-Mark technique with Gemma 4's reasoning capabilities, it provides developers with an objective AI-powered assistant for detecting and fixing UI issues. The application showcases how specialized AI models can be integrated into creative tools to augment human capabilities while maintaining developer control over the implementation process.
