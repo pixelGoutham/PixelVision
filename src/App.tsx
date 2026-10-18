@@ -1,5 +1,5 @@
 // ShipWright AI Audit Verification Ready
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   Sparkles,
   CheckCircle2,
@@ -37,6 +37,7 @@ interface DemoPreset {
   html: string;
   css: string;
   buggyCss: string;
+  liveBugInjectionCss: string;
   spec: string;
 }
 
@@ -48,7 +49,7 @@ const DEMO_PRESETS: DemoPreset[] = [
     pillText: 'Production',
     pillColor: 'bg-blue-500 text-white',
     url: 'https://www.apple.com/',
-    html: `<!-- Extracted from https://www.apple.com/ hero section -->
+    html: `<!-- Fallback snapshot if completely offline -->
 <header>
   <a href="/" title="Apple">Apple</a>
   <nav>
@@ -92,6 +93,31 @@ nav a { text-decoration: none; color: #424245; font-weight: 500; }
 .hero a { display: inline-block; height: 26px; padding: 0.15rem 0.75rem; margin: 0 -8px; border-radius: 9999px; font-weight: 500; text-decoration: none; }
 .hero a:nth-of-type(1) { background: #0071e3; color: white; }
 .hero a:nth-of-type(2) { border: 1.5px solid #0071e3; color: #0071e3; }`,
+    liveBugInjectionCss: `/* --- INJECTED LAYOUT BUG --- */
+/* Injected onto live Apple.com DOM to demonstrate Set-of-Mark overlap & touch-target detection */
+.unit-copy-wrapper h2.headline,
+.unit-copy-wrapper h1,
+.hero h1,
+main h2 {
+  margin-bottom: -18px !important;
+}
+.unit-copy-wrapper h3.subhead,
+.unit-copy-wrapper p.subhead,
+.hero p {
+  margin: -18px auto 4px auto !important;
+  position: relative !important;
+  z-index: 20 !important;
+}
+.cta-links a,
+.unit-copy-wrapper a.button,
+.hero a {
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 2px 10px !important;
+  margin: 0 -8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}`,
     spec: `1. Zero visual overlapping between headings, subheadings, and action links.
 2. Interactive CTA buttons ('Learn more', 'Pre-order') must meet the 44px minimum touch-target height.
 3. Minimum 12px horizontal separation between adjacent CTA buttons.`,
@@ -161,6 +187,15 @@ body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background:
 .course-title {
   margin-top: 0px;
 }`,
+    liveBugInjectionCss: `/* --- INJECTED LAYOUT BUG --- */
+#mainSection h1, .course-title, h1 {
+  margin: -18px auto 0 auto !important;
+}
+button, .btn, a.btn, .btn-join, .cta-enroll {
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 2px 8px !important;
+}`,
     spec: `1. Zero visual overlapping between author attribution and primary course display heading.
 2. Interactive CTA buttons ('Join Us' and 'join now') must meet the 44px minimum touch-target height.
 3. Clear visual hierarchy across hero and lime experience banner.`,
@@ -184,6 +219,9 @@ export function App() {
 
   const [htmlCode, setHtmlCode] = useState<string>(DEMO_PRESETS[0].html);
   const [cssCode, setCssCode] = useState<string>(DEMO_PRESETS[0].css);
+  // Stores the clean live-fetched HTML & CSS so Simulate Overlap and Reset work on the REAL live website!
+  const [cleanFetchedHtml, setCleanFetchedHtml] = useState<string>(DEMO_PRESETS[0].html);
+  const [cleanFetchedCss, setCleanFetchedCss] = useState<string>(DEMO_PRESETS[0].css);
   const [specText, setSpecText] = useState<string>(DEMO_PRESETS[0].spec);
 
   const [activeRules, setActiveRules] = useState({
@@ -192,10 +230,10 @@ export function App() {
     hierarchy: true,
   });
 
-  const [urlInput, setUrlInput] = useState<string>('https://www.apple.com/');
+  const [urlInput, setUrlInput] = useState<string>(DEMO_PRESETS[0].url);
   const [activeSourceUrl, setActiveSourceUrl] = useState<string | undefined>(DEMO_PRESETS[0].url);
   const [isFetchingUrl, setIsFetchingUrl] = useState<boolean>(false);
-  const [importedTitle, setImportedTitle] = useState<string>('Apple.com — Hero');
+  const [importedTitle, setImportedTitle] = useState<string>(DEMO_PRESETS[0].label);
 
   const [imageBase64, setImageBase64] = useState<string>('');
   const [domTelemetry, setDomTelemetry] = useState<DomTelemetryItem[]>([]);
@@ -212,64 +250,84 @@ export function App() {
     []
   );
 
+  const handleFetchLiveUrl = useCallback(
+    async (targetUrl?: string, presetContext?: DemoPreset) => {
+      const urlToFetch = (targetUrl ?? urlInput).trim();
+      if (!urlToFetch) return;
+
+      setImageBase64('');
+      setDomTelemetry([]);
+      setIsFetchingUrl(true);
+      setAuditResult(null);
+
+      try {
+        const response = await fetch('/api/fetch-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: urlToFetch }),
+        });
+
+        const data = (await response.json()) as FetchUrlResponse;
+        if (!response.ok || data.error) {
+          throw new Error(data.error || `HTTP ${response.status}`);
+        }
+
+        setHtmlCode(data.html);
+        setCssCode(data.css);
+        setCleanFetchedHtml(data.html);
+        setCleanFetchedCss(data.css);
+        setActiveSourceUrl(data.url);
+        setImportedTitle(data.title || presetContext?.label || data.url);
+        if (presetContext) {
+          setSpecText(presetContext.spec);
+        }
+      } catch {
+        // Emergency offline fallback only if internet/API is unreachable
+        const fallbackPreset =
+          presetContext ??
+          DEMO_PRESETS.find((p) => urlToFetch.includes('pixelblast') && p.id === 'pixelblast-demo') ??
+          DEMO_PRESETS[0];
+        setHtmlCode(fallbackPreset.html);
+        setCssCode(fallbackPreset.css);
+        setCleanFetchedHtml(fallbackPreset.html);
+        setCleanFetchedCss(fallbackPreset.css);
+        setActiveSourceUrl(fallbackPreset.url);
+        setImportedTitle(fallbackPreset.label);
+        setSpecText(fallbackPreset.spec);
+      } finally {
+        setIsFetchingUrl(false);
+      }
+    },
+    [urlInput]
+  );
+
+  // Automatically pull the real live Apple.com website as soon as the app loads
+  useEffect(() => {
+    handleFetchLiveUrl(DEMO_PRESETS[0].url, DEMO_PRESETS[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Clicking any preset on the left now pulls the ACTUAL full live website!
   const handleSelectPreset = (preset: DemoPreset) => {
     setActivePresetId(preset.id);
     setUrlInput(preset.url);
-    setActiveSourceUrl(preset.url);
-    setImportedTitle(preset.label);
-    setHtmlCode(preset.html);
-    setCssCode(preset.css);
     setSpecText(preset.spec);
-    setAuditResult(null);
+    handleFetchLiveUrl(preset.url, preset);
   };
 
-  const handleFetchLiveUrl = async (targetUrl?: string) => {
-    const urlToFetch = (targetUrl ?? urlInput).trim();
-    if (!urlToFetch) return;
-
-    setImageBase64('');
-    setDomTelemetry([]);
-    setIsFetchingUrl(true);
-    setAuditResult(null);
-
-    try {
-      const response = await fetch('/api/fetch-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: urlToFetch }),
-      });
-
-      const data = (await response.json()) as FetchUrlResponse;
-      if (!response.ok || data.error) {
-        throw new Error(data.error || `HTTP ${response.status}`);
-      }
-
-      setHtmlCode(data.html);
-      setCssCode(data.css);
-      setActiveSourceUrl(data.url);
-      setImportedTitle(data.title || data.url);
-    } catch {
-      const matched =
-        DEMO_PRESETS.find((p) => urlToFetch.includes('pixelblast') && p.id === 'pixelblast-demo') ??
-        DEMO_PRESETS[0];
-      handleSelectPreset(matched);
-    } finally {
-      setIsFetchingUrl(false);
-    }
-  };
-
+  // Injects overlap/touch-target bugs directly onto the REAL fetched live website without stripping its DOM
   const handleSimulateBug = () => {
     const preset = DEMO_PRESETS.find((p) => p.id === activePresetId) ?? DEMO_PRESETS[0];
-    setHtmlCode(preset.html);
-    setCssCode(preset.buggyCss);
+    setHtmlCode(cleanFetchedHtml);
+    setCssCode(`${cleanFetchedCss}\n\n${preset.liveBugInjectionCss}`);
     setAuditResult(null);
     setCenterTab('stage');
   };
 
+  // Restores the clean, un-sabotaged live website DOM & CSS
   const handleResetClean = () => {
-    const preset = DEMO_PRESETS.find((p) => p.id === activePresetId) ?? DEMO_PRESETS[0];
-    setHtmlCode(preset.html);
-    setCssCode(preset.css);
+    setHtmlCode(cleanFetchedHtml);
+    setCssCode(cleanFetchedCss);
     setAuditResult(null);
   };
 
@@ -305,14 +363,15 @@ export function App() {
     if (!auditResult?.suggestedPatch) return;
     const patch = auditResult.suggestedPatch;
 
+    // Strip any injected bug rules so the real live website heals cleanly
+    const baseCleanCss = cssCode.split('/* --- INJECTED LAYOUT BUG --- */')[0].trim();
+
     const nextCss =
       patch.css && patch.css.trim().length > 0
-        ? `${cssCode}\n\n/* --- Gemma 4 Remediation Patch --- */\n${patch.css}`
-        : cssCode;
+        ? `${baseCleanCss}\n\n/* --- Gemma 4 Remediation Patch --- */\n${patch.css}`
+        : `${baseCleanCss}\n\n/* --- Gemma 4 Remediation Patch --- */`;
 
-    if (patch.css && patch.css.trim().length > 0) {
-      setCssCode(nextCss);
-    }
+    setCssCode(nextCss);
 
     if (patch.html && patch.html.trim().length > 0 && !activeSourceUrl) {
       setHtmlCode(patch.html);
@@ -392,7 +451,7 @@ export function App() {
             })}
           </div>
 
-          {/* Curated Demo Targets (Pre & Post Ready) */}
+          {/* Curated Demo Targets (Pulls Live Websites on Click!) */}
           <div className="space-y-1.5">
             <div className="px-2.5 pb-1 text-[10px] font-mono uppercase tracking-wider text-zinc-500">
               Verified Targets
@@ -404,6 +463,7 @@ export function App() {
                   key={preset.id}
                   type="button"
                   onClick={() => handleSelectPreset(preset)}
+                  disabled={isFetchingUrl}
                   className={`w-full text-left p-2.5 rounded-xl border transition cursor-pointer apple-press ${
                     selected
                       ? 'bg-[#16161a] border-white/15 shadow-sm'
@@ -511,7 +571,7 @@ export function App() {
               className="text-sm font-semibold text-white tracking-tight truncate max-w-[240px] xl:max-w-[360px]"
               title={importedTitle}
             >
-              {importedTitle}
+              {isFetchingUrl ? 'Harvesting Live DOM & CSS...' : importedTitle}
             </span>
             <span className="text-xs text-zinc-700 shrink-0">•</span>
             <span className="text-xs font-mono text-zinc-500 truncate hidden xl:inline">
@@ -519,7 +579,7 @@ export function App() {
             </span>
           </div>
 
-          {/* URL Importer & Stage Actions (All shrink-0 & whitespace-nowrap so they NEVER squish) */}
+          {/* URL Importer & Stage Actions */}
           <div className="flex items-center gap-2 shrink-0">
             <div className="flex items-center bg-[#121214] border border-white/[0.08] rounded-lg px-2.5 py-1 focus-within:border-white/25 transition">
               <Globe className="w-3.5 h-3.5 text-zinc-500 mr-2 shrink-0" />
@@ -547,6 +607,7 @@ export function App() {
             <button
               type="button"
               onClick={handleSimulateBug}
+              disabled={isFetchingUrl}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#121214] hover:bg-rose-950/40 text-zinc-300 hover:text-rose-300 border border-white/[0.08] cursor-pointer apple-press shrink-0 whitespace-nowrap"
             >
               <Bug className="w-3.5 h-3.5 text-rose-400 shrink-0" />
@@ -556,6 +617,7 @@ export function App() {
             <button
               type="button"
               onClick={handleResetClean}
+              disabled={isFetchingUrl}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#121214] hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-white/[0.08] cursor-pointer apple-press shrink-0 whitespace-nowrap"
             >
               <RotateCcw className="w-3.5 h-3.5 shrink-0" />
@@ -566,7 +628,7 @@ export function App() {
             <button
               type="button"
               onClick={handleRunAudit}
-              disabled={isAuditing}
+              disabled={isAuditing || isFetchingUrl}
               className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs shadow-sm cursor-pointer apple-press shrink-0 whitespace-nowrap"
             >
               <Sparkles className={`w-3.5 h-3.5 shrink-0 ${isAuditing ? 'animate-spin' : ''}`} />
@@ -761,6 +823,7 @@ export function App() {
                   <button
                     type="button"
                     onClick={handleRunAudit}
+                    disabled={isFetchingUrl}
                     className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs cursor-pointer apple-press"
                   >
                     Start Verification Session
