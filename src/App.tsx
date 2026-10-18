@@ -238,7 +238,7 @@ export function App() {
   const [imageBase64, setImageBase64] = useState<string>('');
   const [domTelemetry, setDomTelemetry] = useState<DomTelemetryItem[]>([]);
 
-  const [instantDemoMode, setInstantDemoMode] = useState<boolean>(true);
+  const [instantDemoMode, setInstantDemoMode] = useState<boolean>(false);
   const [isAuditing, setIsAuditing] = useState<boolean>(false);
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
 
@@ -250,8 +250,8 @@ export function App() {
     []
   );
 
-  const handleFetchLiveUrl = useCallback(
-    async (targetUrl?: string, presetContext?: DemoPreset) => {
+const handleFetchLiveUrl = useCallback(
+    async (targetUrl?: string, presetContext?: DemoPreset, injectBug: boolean = false) => {
       const urlToFetch = (targetUrl ?? urlInput).trim();
       if (!urlToFetch) return;
 
@@ -273,9 +273,9 @@ export function App() {
         }
 
         setHtmlCode(data.html);
-        setCssCode(data.css);
         setCleanFetchedHtml(data.html);
         setCleanFetchedCss(data.css);
+        setCssCode(injectBug && presetContext ? `${data.css}\n\n${presetContext.liveBugInjectionCss}` : data.css);
         setActiveSourceUrl(data.url);
         setImportedTitle(data.title || presetContext?.label || data.url);
         if (presetContext) {
@@ -288,9 +288,9 @@ export function App() {
           DEMO_PRESETS.find((p) => urlToFetch.includes('pixelblast') && p.id === 'pixelblast-demo') ??
           DEMO_PRESETS[0];
         setHtmlCode(fallbackPreset.html);
-        setCssCode(fallbackPreset.css);
         setCleanFetchedHtml(fallbackPreset.html);
         setCleanFetchedCss(fallbackPreset.css);
+        setCssCode(injectBug ? `${fallbackPreset.css}\n\n${fallbackPreset.liveBugInjectionCss}` : fallbackPreset.css);
         setActiveSourceUrl(fallbackPreset.url);
         setImportedTitle(fallbackPreset.label);
         setSpecText(fallbackPreset.spec);
@@ -304,7 +304,7 @@ export function App() {
   // Automatically pull the real live Apple.com website as soon as the app loads
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      void handleFetchLiveUrl(DEMO_PRESETS[0].url, DEMO_PRESETS[0]);
+      void handleFetchLiveUrl(DEMO_PRESETS[0].url, DEMO_PRESETS[0], true);
     }, 0);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -315,9 +315,8 @@ export function App() {
     setActivePresetId(preset.id);
     setUrlInput(preset.url);
     setSpecText(preset.spec);
-    void handleFetchLiveUrl(preset.url, preset);
+    void handleFetchLiveUrl(preset.url, preset, true);
   };
-
   // Injects overlap/touch-target bugs directly onto the REAL fetched live website without stripping its DOM
   const handleSimulateBug = () => {
     const preset = DEMO_PRESETS.find((p) => p.id === activePresetId) ?? DEMO_PRESETS[0];
