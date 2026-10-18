@@ -303,7 +303,10 @@ export function App() {
 
   // Automatically pull the real live Apple.com website as soon as the app loads
   useEffect(() => {
-    handleFetchLiveUrl(DEMO_PRESETS[0].url, DEMO_PRESETS[0]);
+    const timer = window.setTimeout(() => {
+      void handleFetchLiveUrl(DEMO_PRESETS[0].url, DEMO_PRESETS[0]);
+    }, 0);
+    return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -312,7 +315,7 @@ export function App() {
     setActivePresetId(preset.id);
     setUrlInput(preset.url);
     setSpecText(preset.spec);
-    handleFetchLiveUrl(preset.url, preset);
+    void handleFetchLiveUrl(preset.url, preset);
   };
 
   // Injects overlap/touch-target bugs directly onto the REAL fetched live website without stripping its DOM
@@ -588,14 +591,14 @@ export function App() {
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleFetchLiveUrl();
+                  if (e.key === 'Enter') void handleFetchLiveUrl();
                 }}
                 placeholder="https://apple.com or any URL..."
                 className="w-48 xl:w-60 bg-transparent text-xs text-zinc-200 font-mono focus:outline-none"
               />
               <button
                 type="button"
-                onClick={() => handleFetchLiveUrl()}
+                onClick={() => void handleFetchLiveUrl()}
                 disabled={isFetchingUrl}
                 className="ml-2 px-2 py-0.5 rounded bg-white/[0.07] hover:bg-white/[0.14] text-[11px] font-medium text-zinc-200 cursor-pointer apple-press flex items-center gap-1 shrink-0 whitespace-nowrap"
               >
@@ -627,7 +630,7 @@ export function App() {
             {/* PixelFocus Signature Stark White Action Pill */}
             <button
               type="button"
-              onClick={handleRunAudit}
+              onClick={() => void handleRunAudit()}
               disabled={isAuditing || isFetchingUrl}
               className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs shadow-sm cursor-pointer apple-press shrink-0 whitespace-nowrap"
             >
@@ -822,7 +825,7 @@ export function App() {
                   </div>
                   <button
                     type="button"
-                    onClick={handleRunAudit}
+                    onClick={() => void handleRunAudit()}
                     disabled={isFetchingUrl}
                     className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs cursor-pointer apple-press"
                   >
