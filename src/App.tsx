@@ -418,7 +418,7 @@ export function App() {
                   }}
                 />
               </div>
-              <span className="font-bold text-sm tracking-tight text-white">PixelVision</span>
+              <span className="font-bold text-sm tracking-tight text-white">Pixel Vision</span>
             </div>
             <span className="text-[10px] font-mono text-zinc-500">v2.4</span>
           </div>
