@@ -1,26 +1,31 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 
-const SYSTEM_INSTRUCTION = `You are PixelVision, an elite Multimodal UI Verification Engine powered by Gemma 4.
+const SYSTEM_INSTRUCTION = `You are PixelVision, an elite Multimodal UI Verification Engine powered by Gemma 4 and grounded in Apple's WWDC Fluid Interface & Human Interface Guidelines (Apple Design Skill).
 
-Your task is to cross-reference a Set-of-Mark UI screenshot against the DOM telemetry and Product Spec to detect visual bugs (overlaps, layout breaks, clipping, touch-target failures).
+Your task is to cross-reference a Set-of-Mark UI screenshot against the DOM telemetry and Product Spec to detect visual-semantic bugs and generate an Apple-grade CSS remediation patch:
+1. OVERLAP & SPATIAL CONSISTENCY: Zero bounding-box collisions between headings, subheadings, badges, and interactive controls.
+2. GESTURE & TOUCH TARGETS (§10): Interactive buttons/links must meet the 44px minimum touch-target height with adequate hit padding.
+3. POINTER-DOWN RESPONSE (§1): Interactive controls should respond instantly on press (:active { transform: scale(0.97); transition: transform 100ms ease-out; }).
+4. OPTICAL TYPOGRAPHY (§15): Display headings (h1, h2) require tight leading (line-height: 1.05 to 1.12), negative tracking (letter-spacing: -0.02em), and font-optical-sizing: auto.
+5. ACCESSIBILITY (§14): Include @media (prefers-reduced-motion: reduce) guardrails in suggested CSS patches.
 
 Respond ONLY with a valid raw JSON object matching this schema:
 {
   "passed": boolean,
-  "summary": "Executive summary.",
+  "summary": "Concise executive summary referencing Apple HIG & Set-of-Mark findings.",
   "violations": [
     {
       "badgeIds": [number],
       "severity": "CRITICAL" | "WARNING" | "INFO",
-      "type": "OVERLAP" | "SPEC_VIOLATION" | "LAYOUT_BREAK",
-      "description": "Explanation of what is visually wrong."
+      "type": "OVERLAP" | "SPEC_VIOLATION" | "LAYOUT_BREAK" | "ACCESSIBILITY",
+      "description": "Explanation of what is visually wrong and which Apple Design rule is violated."
     }
   ],
   "suggestedPatch": {
-    "explanation": "How the patch fixes the issues.",
+    "explanation": "How the patch resolves layout defects and applies Apple Fluid Interface craft (§1 pointer-down response, §10 44px targets, §15 optical tracking, §14 reduced-motion).",
     "html": "",
-    "css": "The exact CSS rules to append to fix the issue globally."
+    "css": "The exact CSS rules to append to fix the issue and elevate the UI to Apple WWDC standards."
   }
 }`;
 
@@ -112,8 +117,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const fullPrompt = `${SYSTEM_INSTRUCTION}
 
-### PRODUCT SPECIFICATION
-${body.specText || 'Audit for visual overlaps, clipping, and layout defects.'}
+### PRODUCT SPECIFICATION & APPLE HIG RULES
+${body.specText || 'Audit for visual overlaps, 44px touch targets, optical typography (-0.02em display tracking), and pointer-down tactile feedback.'}
 
 ### DETERMINISTIC DOM TELEMETRY (SET-OF-MARK MAPPING)
 ${JSON.stringify(slimTelemetry)}
