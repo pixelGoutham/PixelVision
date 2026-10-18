@@ -445,17 +445,18 @@ export function App() {
             </div>
             {(
               [
-                { id: 'stage', label: 'Visual SoM Stage', icon: Eye },
-                { id: 'code', label: 'Source & CSS Patch', icon: Code2 },
-                { id: 'telemetry', label: `DOM Telemetry (${domTelemetry.length})`, icon: Terminal },
+                { id: 'stage', label: 'Visual SoM Stage', icon: Eye, title: 'View Set-of-Marked webpage' },
+                { id: 'code', label: 'Source & CSS Patch', icon: Code2, title: 'View code editors' },
+                { id: 'telemetry', label: `DOM Telemetry (${domTelemetry.length})`, icon: Terminal, title: 'View raw element coordinates' },
               ] as const
-            ).map(({ id, label, icon: Icon }) => {
+            ).map(({ id, label, icon: Icon, title }) => {
               const active = centerTab === id;
               return (
                 <button
                   key={id}
                   type="button"
                   onClick={() => setCenterTab(id)}
+                  title={title}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium cursor-pointer apple-press ${
                     active
                       ? 'bg-[#1f1f23] text-white font-semibold'
@@ -572,6 +573,7 @@ export function App() {
           <button
             type="button"
             onClick={handleClearCache}
+            title="Clear audit cache"
             className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-zinc-500 hover:text-zinc-300 cursor-pointer apple-press"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -615,6 +617,7 @@ export function App() {
                 type="button"
                 onClick={() => void handleFetchLiveUrl()}
                 disabled={isFetchingUrl}
+                title="Fetch live website"
                 className="ml-2 px-2 py-0.5 rounded bg-white/[0.07] hover:bg-white/[0.14] text-[11px] font-medium text-zinc-200 cursor-pointer apple-press flex items-center gap-1 shrink-0 whitespace-nowrap"
               >
                 <Download className="w-3 h-3 shrink-0" />
@@ -626,6 +629,7 @@ export function App() {
               type="button"
               onClick={handleSimulateBug}
               disabled={isFetchingUrl}
+              title="Simulate layout issues"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#121214] hover:bg-rose-950/40 text-zinc-300 hover:text-rose-300 border border-white/8 cursor-pointer apple-press shrink-0 whitespace-nowrap"
             >
               <Bug className="w-3.5 h-3.5 text-rose-400 shrink-0" />
@@ -936,6 +940,7 @@ export function App() {
                         <button
                           type="button"
                           onClick={handleApplyPatch}
+                          title="Apply suggested fix"
                           className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs cursor-pointer apple-press"
                         >
                           <Wand2 className="w-3.5 h-3.5" />
