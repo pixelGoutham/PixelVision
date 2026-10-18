@@ -15,8 +15,7 @@ PixelVision was created to bridge the gap between advanced AI capabilities and p
 3. Automate detection of common UI issues like overlapping elements, inadequate touch targets, and layout breaks
 4. Close the loop between AI analysis and implementation by providing actionable, editable patches
 5. Serve as a verification engine that ensures UIs meet specified product requirements before shipping
-
-The application represents an exploration of how specialized AI models can be integrated into creative workflows to augment human judgment rather than replace it.
+6. Explore how specialized AI models can be integrated into creative workflows to augment human judgment rather than replace it
 
 ## The Why (Motivation & Problem Space)
 Modern web development faces several challenges that PixelVision addresses:
@@ -113,7 +112,7 @@ The auditing process follows this flow:
 - **Styling Approach**: Tailwind CSS with custom CSS for enhanced interactions
 - **Responsiveness**: Flexible layout adapting to different screen sizes
 
-### Current State & Opportunities
+## Current State & Opportunities
 As evidenced by the APPLE_DESIGN_PLAN.md file, the application has been identified for UI/UX improvements following Apple's design principles. The planned enhancements focus on:
 - Monochrome color theme with striking red highlights
 - Improved button interaction feedback (press states, spring animations)

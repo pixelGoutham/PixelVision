@@ -149,15 +149,40 @@ export function SandboxRenderer({
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     * { box-sizing: border-box; }
+    :root {
+      font-optical-sizing: auto;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
     body {
       margin: 0;
       padding: 0;
       background-color: #ffffff;
       color: #09090b;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+      line-height: 1.5;
       position: relative;
       min-height: 100vh;
       overflow-x: hidden;
+    }
+
+    /* Apple WWDC Fluid Interface Defaults: Instant pointer-down response & optical tracking */
+    button:active, a:active, [role="button"]:active {
+      transform: scale(0.97);
+      transition: transform 100ms ease-out;
+    }
+
+    h1, h2 {
+      letter-spacing: -0.02em;
+      font-optical-sizing: auto;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 150ms !important;
+        transform: none !important;
+      }
     }
 
     ${cssCode}
@@ -499,8 +524,8 @@ export function SandboxRenderer({
 
   return (
     <div className="flex flex-col h-full bg-[#121214] overflow-hidden">
-      {/* Minimalist PixelFocus Stage Bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.06] text-xs flex-wrap gap-2">
+      {/* Apple Translucent Stage Toolbar (§12 Materials & Depth: backdrop-filter + specular top edge) */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[#121214]/85 backdrop-blur-xl saturate-180 border-t border-t-white/[0.08] border-b border-b-white/[0.06] text-xs flex-wrap gap-2 z-10">
         <div className="flex items-center gap-2.5">
           <span className="px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-400 border border-rose-500/25 font-mono text-[11px] font-semibold">
             {badgeCount} Marks
@@ -555,7 +580,7 @@ export function SandboxRenderer({
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-medium cursor-pointer apple-press ${
                 showSnapshotPreview
                   ? 'bg-white text-zinc-950 border-white'
-                  : 'bg-[#09090b] border-white/[0.08] text-zinc-400 hover:text-slate-200'
+                  : 'bg-[#09090b] border-white/[0.08] text-zinc-400 hover:text-zinc-200'
               }`}
             >
               <Eye className="w-3 h-3" />
@@ -580,9 +605,9 @@ export function SandboxRenderer({
       >
         {showSnapshotPreview && lastSnapshot ? (
           <div className="w-full bg-white rounded-xl shadow-2xl overflow-hidden border border-white/10">
-            <div className="bg-[#121214] text-zinc-300 text-[11px] px-3.5 py-1.5 font-mono border-b border-white/10 flex items-center justify-between">
+            <div className="bg-[#121214]/90 backdrop-blur-md text-zinc-300 text-[11px] px-3.5 py-1.5 font-mono border-b border-white/10 flex items-center justify-between">
               <span>Multimodal Tensor Frame ({currentDim.label})</span>
-              <span className="text-emerald-400">SHA-256 Indexed</span>
+              <span className="text-emerald-400">SHA-256 Indexed</span
             </div>
             <img
               src={lastSnapshot}
@@ -595,6 +620,8 @@ export function SandboxRenderer({
             style={{
               width: `${Math.round(currentDim.width * scaleFactor)}px`,
               height: `${scaledWrapperHeight}px`,
+              transition:
+                'width 260ms cubic-bezier(0.22, 1, 0.36, 1), height 260ms cubic-bezier(0.22, 1, 0.36, 1)',
             }}
             className="relative overflow-hidden rounded-xl shadow-2xl border border-white/15 bg-white shrink-0"
           >
@@ -609,6 +636,7 @@ export function SandboxRenderer({
                 height: `${currentDim.height}px`,
                 transform: `scale(${scaleFactor})`,
                 transformOrigin: 'top left',
+                willChange: 'transform',
               }}
               className="border-0 block bg-white"
             />
