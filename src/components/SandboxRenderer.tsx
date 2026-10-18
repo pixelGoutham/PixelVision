@@ -607,7 +607,7 @@ export function SandboxRenderer({
           <div className="w-full bg-white rounded-xl shadow-2xl overflow-hidden border border-white/10">
             <div className="bg-[#121214]/90 backdrop-blur-md text-zinc-300 text-[11px] px-3.5 py-1.5 font-mono border-b border-white/10 flex items-center justify-between">
               <span>Multimodal Tensor Frame ({currentDim.label})</span>
-              <span className="text-emerald-400">SHA-256 Indexed</span
+              <span className="text-emerald-400">SHA-256 Indexed</span>
             </div>
             <img
               src={lastSnapshot}
