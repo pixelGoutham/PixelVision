@@ -470,7 +470,7 @@ export function SandboxRenderer({
 
       setIsCapturing(true);
       const bodyEl = iframeDoc.body;
-      let base64Png = '';
+      let base64Png;
 
       try {
         base64Png = await toPng(bodyEl, {
@@ -525,7 +525,7 @@ export function SandboxRenderer({
   return (
     <div className="flex flex-col h-full bg-[#121214] overflow-hidden">
       {/* Apple Translucent Stage Toolbar (§12 Materials & Depth: backdrop-filter + specular top edge) */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[#121214]/85 backdrop-blur-xl saturate-180 border-t border-t-white/[0.08] border-b border-b-white/[0.06] text-xs flex-wrap gap-2 z-10">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[#121214]/85 backdrop-blur-xl saturate-180 border-t border-t-white/8 border-b border-b-white/6 text-xs flex-wrap gap-2 z-10">
         <div className="flex items-center gap-2.5">
           <span className="px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-400 border border-rose-500/25 font-mono text-[11px] font-semibold">
             {badgeCount} Marks
@@ -580,7 +580,7 @@ export function SandboxRenderer({
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-medium cursor-pointer apple-press ${
                 showSnapshotPreview
                   ? 'bg-white text-zinc-950 border-white'
-                  : 'bg-[#09090b] border-white/[0.08] text-zinc-400 hover:text-zinc-200'
+                  : 'bg-[#09090b] border-white/8 text-zinc-400 hover:text-zinc-200'
               }`}
             >
               <Eye className="w-3 h-3" />
@@ -590,7 +590,7 @@ export function SandboxRenderer({
           <button
             type="button"
             onClick={() => setRenderKey((prev) => prev + 1)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#09090b] hover:bg-zinc-800 text-zinc-300 border border-white/[0.08] text-[11px] font-medium cursor-pointer apple-press"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#09090b] hover:bg-zinc-800 text-zinc-300 border border-white/8 text-[11px] font-medium cursor-pointer apple-press"
           >
             <RefreshCw className="w-3 h-3" />
             Re-Index
