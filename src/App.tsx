@@ -17,6 +17,8 @@ import {
   Bug,
   Eye,
   SlidersHorizontal,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { SandboxRenderer } from './components/SandboxRenderer';
 import {
@@ -241,6 +243,19 @@ export function App() {
   const [instantDemoMode, setInstantDemoMode] = useState<boolean>(true);
   const [isAuditing, setIsAuditing] = useState<boolean>(false);
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
+
+  // New state for handling the copy-to-clipboard UI feedback
+  const [copiedTab, setCopiedTab] = useState<'html' | 'css' | null>(null);
+
+  const handleCopy = async (text: string, tab: 'html' | 'css') => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedTab(tab);
+      setTimeout(() => setCopiedTab(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
 
   const handleTelemetryReady = useCallback(
     (capturedBase64: string, telemetry: DomTelemetryItem[]) => {
@@ -501,13 +516,13 @@ export function App() {
                   { key: 'hierarchy', label: 'Typography Rhythm', tag: 'Optical' },
                 ] as const
               ).map((rule) => {
-                const enabled = activeRules[rule.key];
+                const enabled = activeRules[rule.key as keyof typeof activeRules];
                 return (
                   <button
                     key={rule.key}
                     type="button"
                     onClick={() =>
-                      setActiveRules((prev) => ({ ...prev, [rule.key]: !prev[rule.key] }))
+                      setActiveRules((prev) => ({ ...prev, [rule.key]: !prev[rule.key as keyof typeof activeRules] }))
                     }
                     className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] bg-[#121214] border border-white/5 text-zinc-300 cursor-pointer apple-press"
                   >
@@ -743,9 +758,23 @@ export function App() {
                       DOM Markup (HTML)
                     </button>
                   </div>
-                  <span className="text-[11px] font-mono text-zinc-500">
-                    Live Hot-Reload Enabled
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[11px] font-mono text-zinc-500">
+                      Live Hot-Reload Enabled
+                    </span>
+                    <button
+                      onClick={() => handleCopy(codeSubTab === 'css' ? cssCode : htmlCode, codeSubTab)}
+                      className="p-1.5 hover:bg-white/10 rounded-md transition-colors border border-white/5 cursor-pointer apple-press flex items-center justify-center bg-[#121214]"
+                      aria-label={`Copy ${codeSubTab.toUpperCase()}`}
+                      title={`Copy ${codeSubTab.toUpperCase()}`}
+                    >
+                      {copiedTab === codeSubTab ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5 text-zinc-400 hover:text-white" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {codeSubTab === 'css' ? (
