@@ -203,6 +203,8 @@ export function App() {
   const [instantDemoMode, setInstantDemoMode] = useState<boolean>(true);
   const [isAuditing, setIsAuditing] = useState<boolean>(false);
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
+  const [highlightedBadgeId, setHighlightedBadgeId] = useState<number | null>(null);
+  const [highlightRequestId, setHighlightRequestId] = useState<number>(0);
 
   const handleTelemetryReady = useCallback(
     (capturedBase64: string, telemetry: DomTelemetryItem[]) => {
@@ -214,6 +216,7 @@ export function App() {
 
   const handleSelectPreset = (preset: DemoPreset) => {
     setActivePresetId(preset.id);
+    setHighlightedBadgeId(null);
     setUrlInput(preset.url);
     setActiveSourceUrl(preset.url);
     setImportedTitle(preset.label);
@@ -223,10 +226,17 @@ export function App() {
     setAuditResult(null);
   };
 
+  const handleFocusBadge = (badgeId: number) => {
+    setHighlightedBadgeId(badgeId);
+    setHighlightRequestId((requestId) => requestId + 1);
+    setCenterTab('stage');
+  };
+
   const handleFetchLiveUrl = async (targetUrl?: string) => {
     const urlToFetch = (targetUrl ?? urlInput).trim();
     if (!urlToFetch) return;
 
+    setHighlightedBadgeId(null);
     setImageBase64('');
     setDomTelemetry([]);
     setIsFetchingUrl(true);
@@ -647,6 +657,8 @@ export function App() {
                 htmlCode={htmlCode}
                 cssCode={cssCode}
                 sourceUrl={activeSourceUrl}
+                highlightedBadgeId={highlightedBadgeId}
+                highlightRequestId={highlightRequestId}
                 onTelemetryReady={handleTelemetryReady}
               />
             )}
@@ -804,12 +816,16 @@ export function App() {
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               {v.badgeIds.map((id) => (
-                                <span
+                                <button
                                   key={id}
-                                  className="px-2 py-0.5 rounded bg-rose-500 text-white font-mono text-[10px] font-bold"
+                                  type="button"
+                                  onClick={() => handleFocusBadge(id)}
+                                  title={`Show mark ${id} in the preview`}
+                                  aria-label={`Show mark ${id} in the preview`}
+                                  className="px-2 py-0.5 rounded bg-rose-500 text-white font-mono text-[10px] font-bold cursor-pointer hover:bg-rose-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-300 transition-colors"
                                 >
                                   Mark #{id}
-                                </span>
+                                </button>
                               ))}
                               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.05] text-zinc-300">
                                 {v.type}
