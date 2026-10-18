@@ -396,7 +396,7 @@ export function App() {
   return (
     <div className="h-screen w-screen flex bg-[#09090b] text-zinc-100 overflow-hidden select-none">
       {/* Left Sidebar — PixelFocus Signature Layout */}
-      <aside className="w-60 shrink-0 bg-[#09090b] border-r border-white/[0.06] flex flex-col justify-between p-3.5">
+      <aside className="w-60 shrink-0 bg-[#09090b] border-r border-white/6 flex flex-col justify-between p-3.5">
         <div className="space-y-6">
           {/* Brand Header */}
           <div className="flex items-center justify-between px-2 pt-1">
@@ -441,7 +441,7 @@ export function App() {
                   className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium cursor-pointer apple-press ${
                     active
                       ? 'bg-[#1f1f23] text-white font-semibold'
-                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
+                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/3'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -467,7 +467,7 @@ export function App() {
                   className={`w-full text-left p-2.5 rounded-xl border transition cursor-pointer apple-press ${
                     selected
                       ? 'bg-[#16161a] border-white/15 shadow-sm'
-                      : 'bg-transparent border-transparent hover:bg-white/[0.03]'
+                      : 'bg-transparent border-transparent hover:bg-white/3'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
@@ -506,7 +506,7 @@ export function App() {
                     onClick={() =>
                       setActiveRules((prev) => ({ ...prev, [rule.key]: !prev[rule.key] }))
                     }
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] bg-[#121214] border border-white/[0.05] text-zinc-300 cursor-pointer apple-press"
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] bg-[#121214] border border-white/5 text-zinc-300 cursor-pointer apple-press"
                   >
                     <span className="flex items-center gap-2">
                       <span
@@ -525,7 +525,7 @@ export function App() {
         </div>
 
         {/* Bottom Controls: 503 Shield & Cache */}
-        <div className="space-y-1.5 pt-3 border-t border-white/[0.06]">
+        <div className="space-y-1.5 pt-3 border-t border-white/6">
           <button
             type="button"
             onClick={() => setInstantDemoMode((prev) => !prev)}
@@ -565,10 +565,10 @@ export function App() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Top Bar — Protected from Long URL Title Overflow */}
-        <header className="h-14 shrink-0 px-6 border-b border-white/[0.06] flex items-center justify-between gap-4 bg-[#09090b]">
+        <header className="h-14 shrink-0 px-6 border-b border-white/6 flex items-center justify-between gap-4 bg-[#09090b]">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <span
-              className="text-sm font-semibold text-white tracking-tight truncate max-w-[240px] xl:max-w-[360px]"
+              className="text-sm font-semibold text-white tracking-tight truncate max-w-60 xl:max-w-90"
               title={importedTitle}
             >
               {isFetchingUrl ? 'Harvesting Live DOM & CSS...' : importedTitle}
@@ -581,7 +581,7 @@ export function App() {
 
           {/* URL Importer & Stage Actions */}
           <div className="flex items-center gap-2 shrink-0">
-            <div className="flex items-center bg-[#121214] border border-white/[0.08] rounded-lg px-2.5 py-1 focus-within:border-white/25 transition">
+            <div className="flex items-center bg-[#121214] border border-white/8 rounded-lg px-2.5 py-1 focus-within:border-white/25 transition">
               <Globe className="w-3.5 h-3.5 text-zinc-500 mr-2 shrink-0" />
               <input
                 type="url"
@@ -608,7 +608,7 @@ export function App() {
               type="button"
               onClick={handleSimulateBug}
               disabled={isFetchingUrl}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#121214] hover:bg-rose-950/40 text-zinc-300 hover:text-rose-300 border border-white/[0.08] cursor-pointer apple-press shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#121214] hover:bg-rose-950/40 text-zinc-300 hover:text-rose-300 border border-white/8 cursor-pointer apple-press shrink-0 whitespace-nowrap"
             >
               <Bug className="w-3.5 h-3.5 text-rose-400 shrink-0" />
               Simulate Overlap
@@ -618,7 +618,7 @@ export function App() {
               type="button"
               onClick={handleResetClean}
               disabled={isFetchingUrl}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#121214] hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-white/[0.08] cursor-pointer apple-press shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#121214] hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-white/8 cursor-pointer apple-press shrink-0 whitespace-nowrap"
             >
               <RotateCcw className="w-3.5 h-3.5 shrink-0" />
               Reset
@@ -715,7 +715,7 @@ export function App() {
 
             {centerTab === 'code' && (
               <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.06]">
+                <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/6">
                   <div className="flex items-center gap-1 bg-[#09090b] p-1 rounded-lg border border-white/[0.07]">
                     <button
                       type="button"
@@ -765,7 +765,7 @@ export function App() {
 
             {centerTab === 'telemetry' && (
               <div className="flex flex-col h-full">
-                <div className="px-4 py-2.5 border-b border-white/[0.06] flex items-center justify-between text-xs">
+                <div className="px-4 py-2.5 border-b border-white/6 flex items-center justify-between text-xs">
                   <span className="font-semibold text-white">
                     Deterministic Bounding-Box Telemetry
                   </span>
@@ -782,12 +782,12 @@ export function App() {
 
           {/* Right 5 Columns: Verification Report & Self-Healing Patch */}
           <div className="col-span-5 pf-card flex flex-col overflow-hidden">
-            <div className="px-5 py-3 border-b border-white/[0.06] flex items-center justify-between">
+            <div className="px-5 py-3 border-b border-white/6 flex items-center justify-between">
               <span className="text-xs font-semibold text-white tracking-tight">
                 Verification Report
               </span>
               {auditResult && (
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.05] text-zinc-300 border border-white/[0.08]">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-zinc-300 border border-white/8">
                   {auditResult._sourceLabel || 'Verified SoM'}
                 </span>
               )}
@@ -874,7 +874,7 @@ export function App() {
                                   Mark #{id}
                                 </span>
                               ))}
-                              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.05] text-zinc-300">
+                              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-zinc-300">
                                 {v.type}
                               </span>
                             </div>
@@ -896,7 +896,7 @@ export function App() {
 
                   {/* Self-Healing Remediation Patch */}
                   {auditResult.suggestedPatch && auditResult.suggestedPatch.css && (
-                    <div className="space-y-3 pt-3 border-t border-white/[0.06]">
+                    <div className="space-y-3 pt-3 border-t border-white/6">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
                           Remediation Patch
