@@ -39,7 +39,7 @@ PixelVision follows a client-side only architecture with simulated backend APIs:
 - **Frontend**: React 18 + TypeScript + Vite
 - **State Management**: React hooks (useState, useCallback, useEffect)
 - **UI Components**: Custom components with Lucide React icons
-- **Styling**: Tailwind CSS with customizations
+- **Styling**: Tailwind CSS with customizations (now enhanced with Apple WWDC Fluid Interface principles)
 - **AI Integration**: Simulated API endpoints (`/api/fetch-url`, `/api/audit`) that would connect to Gemma 4 in production
 
 ### Core Technologies & Techniques
@@ -85,23 +85,40 @@ The auditing process follows this flow:
   * Tier 1: html-to-image with skipFonts + imagePlaceholder
   * Tier 2: Filtering cross-origin media elements
   * Tier 3: Native Canvas Set-of-Mark renderer (guaranteed fallback)
+- **NEW**: Enhanced with Apple WWDC Fluid Interface design principles:
+  - Pointer-down response (scale(0.97) on active states)
+  - Optical typography with negative letter spacing
+  - Translucent materials with backdrop-filter effects
+  - Improved reduced motion support
+  - Apple-style translucent stage toolbar
+  - Enhanced image preview with backdrop blur
 - Communicating telemetry and captured image back to parent via postMessage
 
 **gemmaClient.ts**: Handles AI interaction:
 - SHA-256 hashing of inputs for caching
-- IndexedDB localforage cache for audit results
+- IndexedDB localforage cache for audit results (now v4)
 - Request/response formatting for the simulated audit API
 - Error handling and cache management
+- **NEW**: Integrated Apple HIG (Human Interface Guidelines) & Fluid Interface principles:
+  - All audit evaluations now reference Apple HIG & Fluid Interface specifications
+  - Violation descriptions include specific Apple guideline references (§1 Pointer-down, §7 Spatial Consistency, §10 Touch Target, etc.)
+  - Suggested patches include Apple WWDC Fluid CSS for automatic compliance
+  - Deterministic demo mode enhanced with Apple design principles
 
 #### 4. User Experience Features
 - **Live URL Import**: Fetches and extracts HTML/CSS from any public website
-- **Demo Presets**: Pre-built examples showcasing common UI issues
+- **Demo Presets**: Pre-built examples showcasing common UI issues (now evaluated against Apple HIG)
 - **Responsive Design Testing**: Mobile/tablet/desktop viewport switching
 - **Telemetry Visibility**: Option to view raw DOM telemetry data
 - **Audit Caching**: SHA-256 based IndexedDB caching to avoid redundant API calls
 - **Clear Visual Feedback**: Color-coded results (red/green) with iconography
 - **One-Click Patching**: Apply AI-suggested fixes directly to code editors
 - **Red Highlight Theme**: Consistent use of red accents for interactive states and feedback
+- **NEW**: Apple-inspired design enhancements:
+  - Instant pointer-down feedback for tactile responsiveness
+  - Optical display tracking with negative letter spacing
+  - Translucent floating chrome with specular top edges
+  - Non-vestibular reduced motion & transparency fallbacks
 
 #### 5. Technical Details
 - **Build Tool**: Vite with React and TypeScript plugins
@@ -109,19 +126,19 @@ The auditing process follows this flow:
 - **Image Processing**: html-to-image library with CORS workaround strategies
 - **Storage**: localforage wrapper around IndexedDB for persistent caching
 - **Messaging**: Cross-frame communication via window.postMessage
-- **Styling Approach**: Tailwind CSS with custom CSS for enhanced interactions
+- **Styling Approach**: Tailwind CSS with custom CSS for enhanced interactions (now includes Apple WWDC Fluid Interface CSS)
 - **Responsiveness**: Flexible layout adapting to different screen sizes
 
 ## Current State & Opportunities
-As evidenced by the APPLE_DESIGN_PLAN.md file, the application has been identified for UI/UX improvements following Apple's design principles. The planned enhancements focus on:
-- Monochrome color theme with striking red highlights
-- Improved button interaction feedback (press states, spring animations)
-- Enhanced visual hierarchy and depth perception
-- Reduced motion support for accessibility
-- Gesture response improvements
-- Typography enhancements
+As evidenced by the APPLE_DESIGN_PLAN.md file and recent updates, the application has been enhanced with Apple WWDC Fluid Interface design principles. The current improvements focus on:
+- Pointer-down response (§1): Instant tactile feedback on interactive elements
+- Spatial Consistency (§7): Proper element spacing and collision prevention
+- Touch Target (§10): 44px minimum size with hysteresis for gesture recognition
+- Materials & Depth (§12): Translucent floating chrome with specular top edges
+- Reduced Motion (§14): Non-vestibular accessibility support
+- Optical Typography (§15): Proper sizing, leading, and tracking for display text
 
-These improvements would make the application not only functionally powerful but also a delight to use, embodying the principles it helps others implement in their own interfaces.
+These improvements make the application not only functionally powerful but also a delight to use, embodying the very principles it helps others implement in their own interfaces.
 
 ## Summary
-PixelVision represents an innovative application of multimodal AI to the frontend development workflow. By combining the Set-of-Mark technique with Gemma 4's reasoning capabilities, it provides developers with an objective AI-powered assistant for detecting and fixing UI issues. The application showcases how specialized AI models can be integrated into creative tools to augment human capabilities while maintaining developer control over the implementation process.
+PixelVision represents an innovative application of multimodal AI to the frontend development workflow. By combining the Set-of-Mark technique with Gemma 4's reasoning capabilities and Apple's Human Interface Guidelines, it provides developers with an objective AI-powered assistant for detecting and fixing UI issues while adhering to industry-leading design principles. The application showcases how specialized AI models can be integrated into creative tools to augment human capabilities while maintaining developer control over the implementation process.
