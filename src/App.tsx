@@ -406,7 +406,7 @@ export function App() {
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center overflow-hidden">
                 <img
-                  src="/logo_dark.png"
+                  src="/logo.png"
                   alt="Pixel"
                   className="w-6 h-6 object-contain"
                   onError={(e) => {
